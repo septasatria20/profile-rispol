@@ -117,6 +117,19 @@ Route::prefix('admin')->group(function () {
     Route::post('/bank-accounts/{id}', [AdminController::class, 'updateBankAccount'])->name('admin.banks.update');
     Route::delete('/bank-accounts/{id}', [AdminController::class, 'destroyBankAccount'])->name('admin.banks.destroy');
 
+    // Bidang Routes
+    Route::post('/bidangs', [AdminController::class, 'storeBidang'])->name('admin.bidangs.store');
+    Route::post('/bidangs/{id}', [AdminController::class, 'updateBidang'])->name('admin.bidangs.update');
+    Route::delete('/bidangs/{id}', [AdminController::class, 'destroyBidang'])->name('admin.bidangs.destroy');
+
+    // Pengurus Routes
+    Route::post('/pengurus', [AdminController::class, 'storePengurus'])->name('admin.pengurus.store');
+    Route::post('/pengurus/{id}', [AdminController::class, 'updatePengurus'])->name('admin.pengurus.update');
+    Route::delete('/pengurus/{id}', [AdminController::class, 'destroyPengurus'])->name('admin.pengurus.destroy');
+
+    // Organization Info Routes
+    Route::post('/organization-info', [AdminController::class, 'updateOrganizationInfo'])->name('admin.organization.update');
+
     // Settings Routes
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
 

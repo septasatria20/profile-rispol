@@ -24,15 +24,20 @@ class LandingController extends Controller
 
         return Inertia::render('Home', [
             // Mengirim data ke props React
-            'bidangs' => Bidang::with('divisions')->get(),
-            'pengurusInti' => Pengurus::where('type', 'inti')->get(),
-            'pengurusHarian' => Pengurus::where('type', 'harian')->get(),
+            'bidangs' => Bidang::where('is_active', true)->orderBy('order')->get(),
+            'pengurusInti' => Pengurus::where('type', 'inti')->where('is_active', true)->orderBy('order')->get(),
+            'pengurusHarian' => Pengurus::where('type', 'harian')->where('is_active', true)->orderBy('order')->get(),
             'news' => Berita::latest()->take(3)->get(),
-            'prokers' => Proker::orderBy('date', 'desc')->get(),
+            'prokers' => Proker::where('status', 'Aktif')->orderBy('date', 'desc')->get(),
             'galeris' => Galeri::orderBy('year', 'desc')->get(),
             'heroImage' => Setting::get('hero_image'),
             'youtubeLink' => Setting::get('youtube_link'),
             'sliderImages' => $sliderImages,
+            'visiMisi' => [
+                'visi' => Setting::get('visi', ''),
+                'misi' => Setting::get('misi', ''),
+                'sejarah' => Setting::get('sejarah', ''),
+            ],
         ]);
     }
     

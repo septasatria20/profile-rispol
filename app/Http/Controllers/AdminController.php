@@ -7,6 +7,8 @@ use App\Models\Berita;
 use App\Models\Donation;
 use App\Models\BankAccount;
 use App\Models\Setting;
+use App\Models\Bidang;
+use App\Models\Pengurus;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -51,6 +53,17 @@ class AdminController extends Controller
             ['id' => 2, 'year' => 2024, 'title' => 'Dokumentasi Kegiatan 2024', 'count' => '77 Foto', 'link' => 'https://drive.google.com/drive/folders/yyy'],
         ];
 
+        $bidangs = Bidang::where('is_active', true)->orderBy('order')->get();
+        $pengurusInti = Pengurus::where('type', 'inti')->where('is_active', true)->orderBy('order')->get();
+        $pengurusHarian = Pengurus::where('type', 'harian')->where('is_active', true)->orderBy('order')->get();
+        
+        // Get organization info
+        $visiMisi = [
+            'visi' => Setting::get('visi', ''),
+            'misi' => Setting::get('misi', ''),
+            'sejarah' => Setting::get('sejarah', ''),
+        ];
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
             'prokers' => $prokers,
@@ -58,6 +71,10 @@ class AdminController extends Controller
             'donations' => $donations,
             'bankAccounts' => $bankAccounts,
             'galleries' => $galleries,
+            'bidangs' => $bidangs,
+            'pengurusInti' => $pengurusInti,
+            'pengurusHarian' => $pengurusHarian,
+            'visiMisi' => $visiMisi,
             'settings' => [
                 'hero_image' => $heroImage,
                 'youtube_link' => $youtubeLink,
@@ -248,6 +265,146 @@ class AdminController extends Controller
         $donation->update($validated);
 
         return redirect()->back()->with('success', 'Status donasi berhasil diperbarui');
+    }
+
+    // Bidang CRUD
+    public function storeBidang(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'order' => 'nullable|integer',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('bidangs', 'public');
+            $validated['image'] = $path;
+        }
+
+        Bidang::create($validated);
+
+        return redirect()->back()->with('success', 'Bidang berhasil ditambahkan');
+    }
+
+    public function updateBidang(Request $request, $id)
+    {
+        $bidang = Bidang::findOrFail($id);
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'order' => 'nullable|integer',
+            'is_active' => 'required|boolean',
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($bidang->image) {
+                Storage::disk('public')->delete($bidang->image);
+            }
+            $path = $request->file('image')->store('bidangs', 'public');
+            $validated['image'] = $path;
+        }
+
+        $bidang->update($validated);
+
+        return redirect()->back()->with('success', 'Bidang berhasil diperbarui');
+    }
+
+    public function destroyBidang($id)
+    {
+        $bidang = Bidang::findOrFail($id);
+        
+        if ($bidang->image) {
+            Storage::disk('public')->delete($bidang->image);
+        }
+        
+        $bidang->delete();
+
+        return redirect()->back()->with('success', 'Bidang berhasil dihapus');
+    }
+
+    // Pengurus CRUD
+    public function storePengurus(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'nim' => 'nullable|string|max:255',
+            'prodi' => 'nullable|string|max:255',
+            'photo' => 'nullable|image|max:2048',
+            'type' => 'required|in:inti,harian',
+            'order' => 'nullable|integer',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('pengurus', 'public');
+            $validated['photo'] = $path;
+        }
+
+        Pengurus::create($validated);
+
+        return redirect()->back()->with('success', 'Pengurus berhasil ditambahkan');
+    }
+
+    public function updatePengurus(Request $request, $id)
+    {
+        $pengurus = Pengurus::findOrFail($id);
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'nim' => 'nullable|string|max:255',
+            'prodi' => 'nullable|string|max:255',
+            'photo' => 'nullable|image|max:2048',
+            'type' => 'required|in:inti,harian',
+            'order' => 'nullable|integer',
+            'is_active' => 'required|boolean',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            if ($pengurus->photo) {
+                Storage::disk('public')->delete($pengurus->photo);
+            }
+            $path = $request->file('photo')->store('pengurus', 'public');
+            $validated['photo'] = $path;
+        }
+
+        $pengurus->update($validated);
+
+        return redirect()->back()->with('success', 'Pengurus berhasil diperbarui');
+    }
+
+    public function destroyPengurus($id)
+    {
+        $pengurus = Pengurus::findOrFail($id);
+        
+        if ($pengurus->photo) {
+            Storage::disk('public')->delete($pengurus->photo);
+        }
+        
+        $pengurus->delete();
+
+        return redirect()->back()->with('success', 'Pengurus berhasil dihapus');
+    }
+
+    // Update Organization Info (Visi, Misi, Sejarah)
+    public function updateOrganizationInfo(Request $request)
+    {
+        $validated = $request->validate([
+            'visi' => 'nullable|string',
+            'misi' => 'nullable|string',
+            'sejarah' => 'nullable|string',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            if ($value !== null) {
+                Setting::set($key, $value);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Informasi organisasi berhasil diperbarui');
     }
 
     public function login()

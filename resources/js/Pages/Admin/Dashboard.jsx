@@ -18,8 +18,8 @@ const Toast = ({ message, onClose }) => (
     </div>
 );
 
-export default function Dashboard({ stats = [], prokers = [], beritas = [], donations = [], bankAccounts = [], galleries = [], settings = {} }) {
-    const { flash = {} } = usePage().props; // Add default empty object for flash
+export default function Dashboard({ stats = [], prokers = [], beritas = [], donations = [], bankAccounts = [], galleries = [], bidangs = [], pengurusInti = [], pengurusHarian = [], visiMisi = {}, settings = {} }) {
+    const { flash = {} } = usePage().props;
     const [activeTab, setActiveTab] = useState('dashboard');
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState('');
@@ -72,6 +72,36 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
         slider_1: null,
         slider_2: null,
         slider_3: null,
+    });
+
+    // Form for Bidang
+    const bidangForm = useForm({
+        id: '',
+        name: '',
+        description: '',
+        image: null,
+        order: 0,
+        is_active: true,
+    });
+
+    // Form for Pengurus
+    const pengurusForm = useForm({
+        id: '',
+        name: '',
+        position: '',
+        nim: '',
+        prodi: '',
+        photo: null,
+        type: 'inti',
+        order: 0,
+        is_active: true,
+    });
+
+    // Form for Organization Info
+    const orgForm = useForm({
+        visi: visiMisi.visi || '',
+        misi: visiMisi.misi || '',
+        sejarah: visiMisi.sejarah || '',
     });
 
     // --- HANDLERS ---
@@ -238,6 +268,110 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
         router.post('/admin/settings', formData, {
             forceFormData: true,
         });
+    };
+
+    // --- TAMBAHAN FUNGSI YANG HILANG ---
+    const handleSubmitOrgInfo = (e) => {
+        e.preventDefault();
+        // Menggunakan route settings untuk menyimpan visi, misi, sejarah
+        router.post('/admin/settings', {
+            visi: orgForm.data.visi,
+            misi: orgForm.data.misi,
+            sejarah: orgForm.data.sejarah,
+        }, {
+            preserveScroll: true,
+        });
+    };
+
+    // --- PENGURUS HANDLERS ---
+    const openAddPengurus = () => {
+        // Reset form tapi pertahankan type (inti/harian) jika sudah diset tombol
+        const currentType = pengurusForm.data.type; 
+        pengurusForm.reset();
+        pengurusForm.setData('type', currentType);
+        setModalType('add_pengurus');
+        setShowModal(true);
+    };
+
+    const openEditPengurus = (item) => {
+        pengurusForm.setData({
+            id: item.id,
+            name: item.name,
+            position: item.role || item.position, // Handle perbedaan nama field jika ada
+            nim: item.nim || '',
+            prodi: item.prodi || '',
+            photo: null,
+            type: item.type,
+            order: item.order || 0,
+            is_active: item.is_active !== undefined ? item.is_active : true,
+        });
+        setModalType('edit_pengurus');
+        setShowModal(true);
+    };
+
+    const handleSubmitPengurus = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', pengurusForm.data.name);
+        formData.append('role', pengurusForm.data.position); // Mapping position ke role di DB
+        formData.append('type', pengurusForm.data.type);
+        // Tambahkan field opsional jika ada di database migration
+        if (pengurusForm.data.nim) formData.append('nim', pengurusForm.data.nim);
+        if (pengurusForm.data.prodi) formData.append('prodi', pengurusForm.data.prodi);
+        
+        if (pengurusForm.data.photo) {
+            formData.append('image', pengurusForm.data.photo); // Mapping photo ke image di DB
+        }
+
+        const routeName = modalType === 'add_pengurus' ? '/admin/pengurus' : `/admin/pengurus/${pengurusForm.data.id}`;
+        router.post(routeName, formData, {
+            onSuccess: () => { setShowModal(false); pengurusForm.reset(); },
+            forceFormData: true,
+        });
+    };
+
+    const handleDeletePengurus = (id) => {
+        if (confirm('Hapus pengurus ini?')) router.delete(`/admin/pengurus/${id}`);
+    };
+
+    // --- BIDANG HANDLERS ---
+    const openAddBidang = () => {
+        bidangForm.reset();
+        setModalType('add_bidang');
+        setShowModal(true);
+    };
+
+    const openEditBidang = (item) => {
+        bidangForm.setData({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            image: null,
+            order: item.order || 0,
+            is_active: item.is_active !== undefined ? item.is_active : true,
+        });
+        setModalType('edit_bidang');
+        setShowModal(true);
+    };
+
+    const handleSubmitBidang = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', bidangForm.data.name);
+        formData.append('description', bidangForm.data.description);
+        if (bidangForm.data.image) {
+            formData.append('image', bidangForm.data.image);
+        }
+
+        const routeName = modalType === 'add_bidang' ? '/admin/bidang' : `/admin/bidang/${bidangForm.data.id}`;
+        router.post(routeName, formData, {
+            onSuccess: () => { setShowModal(false); bidangForm.reset(); },
+            forceFormData: true,
+        });
+    };
+
+    const handleDeleteBidang = (id) => {
+        if (confirm('Hapus bidang ini?')) router.delete(`/admin/bidang/${id}`);
     };
 
     const handleDonationStatus = (id, status) => {
@@ -536,90 +670,224 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
         </div>
     );
 
-    const renderPengaturan = () => (
+    const renderTentangKami = () => (
         <div className="space-y-8 animate-fade-in">
-            {/* Container Beranda */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                    <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                        <LayoutDashboard size={20} className="text-blue-600" />
-                        Konfigurasi Halaman Beranda
-                    </h3>
-                    <p className="text-slate-500 text-sm mt-1">Atur tampilan utama website seperti gambar hero, video profil, dan slider galeri.</p>
-                </div>
-                
-                <div className="p-8">
-                    <form onSubmit={handleSubmitSettings} className="space-y-8">
-                        {/* Hero Section */}
-                        <div className="grid md:grid-cols-2 gap-8 pb-8 border-b border-slate-100">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Gambar Hero Utama</label>
-                                <p className="text-xs text-slate-500 mb-3">Gambar besar yang muncul pertama kali saat website dibuka.</p>
-                                <input 
-                                    type="file" 
-                                    onChange={e => settingsForm.setData('hero_image', e.target.files[0])}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none text-sm" 
-                                />
-                            </div>
-                            <div>
-                                {settings.hero_image ? (
-                                    <img src={`/storage/${settings.hero_image}`} alt="Hero" className="w-full h-32 object-cover rounded-xl border border-slate-200" />
-                                ) : (
-                                    <div className="w-full h-32 bg-slate-100 rounded-xl border border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-sm">Preview Hero</div>
-                                )}
-                            </div>
-                        </div>
+            {/* Visi Misi Sejarah */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <h3 className="font-bold text-lg text-slate-800 mb-6">Informasi Organisasi</h3>
+                <form onSubmit={handleSubmitOrgInfo} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Visi</label>
+                        <textarea 
+                            value={orgForm.data.visi}
+                            onChange={e => orgForm.setData('visi', e.target.value)}
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none" 
+                            rows="3"
+                            placeholder="Masukkan visi organisasi..."
+                        ></textarea>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Misi</label>
+                        <textarea 
+                            value={orgForm.data.misi}
+                            onChange={e => orgForm.setData('misi', e.target.value)}
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none" 
+                            rows="5"
+                            placeholder="Masukkan misi organisasi..."
+                        ></textarea>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Sejarah</label>
+                        <textarea 
+                            value={orgForm.data.sejarah}
+                            onChange={e => orgForm.setData('sejarah', e.target.value)}
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none" 
+                            rows="6"
+                            placeholder="Masukkan sejarah organisasi..."
+                        ></textarea>
+                    </div>
+                    <button type="submit" disabled={orgForm.processing} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50">
+                        {orgForm.processing ? 'Menyimpan...' : 'Simpan Informasi'}
+                    </button>
+                </form>
+            </div>
 
-                        {/* Video Section */}
-                        <div className="pb-8 border-b border-slate-100">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Link Video Profil (YouTube)</label>
-                            <div className="flex gap-4">
-                                <div className="flex-1 relative">
-                                    <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input 
-                                        type="url" 
-                                        value={settingsForm.data.youtube_link}
-                                        onChange={e => settingsForm.setData('youtube_link', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none" 
-                                        placeholder="https://www.youtube.com/embed/..."
-                                    />
+            {/* Bidang Management */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 className="font-bold text-lg text-slate-800">Manajemen Bidang</h3>
+                    <button 
+                        onClick={openAddBidang}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors"
+                    >
+                        <Plus size={16} /> Tambah Bidang
+                    </button>
+                </div>
+                <table className="w-full text-left text-sm text-slate-600">
+                    <thead className="bg-slate-50 text-slate-800 font-bold">
+                        <tr>
+                            <th className="p-4">Nama Bidang</th>
+                            <th className="p-4">Deskripsi</th>
+                            <th className="p-4">Urutan</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {bidangs.map((item) => (
+                            <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50">
+                                <td className="p-4 font-medium text-slate-800">{item.name}</td>
+                                <td className="p-4 max-w-xs truncate">{item.description}</td>
+                                <td className="p-4">{item.order}</td>
+                                <td className="p-4">
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${item.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                                        {item.is_active ? 'Aktif' : 'Nonaktif'}
+                                    </span>
+                                </td>
+                                <td className="p-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <button onClick={() => openEditBidang(item)} className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg"><Edit size={16} /></button>
+                                        <button onClick={() => handleDeleteBidang(item.id)} className="p-2 hover:bg-red-50 text-red-600 rounded-lg"><Trash2 size={16} /></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Pengurus Management */}
+            <div className="grid lg:grid-cols-2 gap-8">
+                {/* Pengurus Inti */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 className="font-bold text-lg text-slate-800">Pengurus Inti</h3>
+                        <button 
+                            onClick={() => { pengurusForm.setData('type', 'inti'); openAddPengurus(); }}
+                            className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    </div>
+                    <div className="divide-y divide-slate-50">
+                        {pengurusInti.map((item) => (
+                            <div key={item.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-slate-200 rounded-full overflow-hidden">
+                                        {item.photo ? (
+                                            <img src={`/storage/${item.photo}`} alt={item.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">{item.name.charAt(0)}</div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800">{item.name}</h4>
+                                        <p className="text-sm text-slate-500">{item.position}</p>
+                                        {item.nim && <p className="text-xs text-slate-400">{item.nim} - {item.prodi}</p>}
+                                    </div>
+                                </div>
+                                <div className="flex gap-1">
+                                    <button onClick={() => openEditPengurus(item)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit size={16} /></button>
+                                    <button onClick={() => handleDeletePengurus(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Slider Section */}
-                        <div>
-                            <h4 className="font-bold text-slate-800 mb-4">Slider Galeri (Max 3 Gambar)</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {[1, 2, 3].map(num => (
-                                    <div key={num} className="space-y-3">
-                                        <label className="text-sm font-medium text-slate-600">Slide {num}</label>
-                                        <div className="relative group">
-                                            {settings.slider_images && settings.slider_images[num - 1] ? (
-                                                <img src={`/storage/${settings.slider_images[num - 1]}`} className="w-full h-32 object-cover rounded-xl border border-slate-200" />
-                                            ) : (
-                                                <div className="w-full h-32 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex items-center justify-center">
-                                                    <ImageIcon className="text-slate-300" />
-                                                </div>
-                                            )}
-                                            <input 
-                                                type="file" 
-                                                onChange={e => settingsForm.setData(`slider_${num}`, e.target.files[0])}
-                                                className="mt-2 w-full text-xs text-slate-500" 
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end pt-4">
-                            <button type="submit" disabled={settingsForm.processing} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg shadow-blue-200">
-                                {settingsForm.processing ? 'Menyimpan Perubahan...' : 'Simpan Konfigurasi Beranda'}
-                            </button>
-                        </div>
-                    </form>
+                        ))}
+                    </div>
                 </div>
+
+                {/* Pengurus Harian */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 className="font-bold text-lg text-slate-800">Pengurus Harian</h3>
+                        <button 
+                            onClick={() => { pengurusForm.setData('type', 'harian'); openAddPengurus(); }}
+                            className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    </div>
+                    <div className="divide-y divide-slate-50">
+                        {pengurusHarian.map((item) => (
+                            <div key={item.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-slate-200 rounded-full overflow-hidden">
+                                        {item.photo ? (
+                                            <img src={`/storage/${item.photo}`} alt={item.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">{item.name.charAt(0)}</div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800">{item.name}</h4>
+                                        <p className="text-sm text-slate-500">{item.position}</p>
+                                        {item.nim && <p className="text-xs text-slate-400">{item.nim} - {item.prodi}</p>}
+                                    </div>
+                                </div>
+                                <div className="flex gap-1">
+                                    <button onClick={() => openEditPengurus(item)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit size={16} /></button>
+                                    <button onClick={() => handleDeletePengurus(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    const renderPengaturan = () => (
+        <div className="space-y-8 animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <h3 className="font-bold text-lg text-slate-800 mb-6">Pengaturan Beranda & Video</h3>
+                <form onSubmit={handleSubmitSettings} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Link Video YouTube</label>
+                        <input 
+                            type="url" 
+                            value={settingsForm.data.youtube_link}
+                            onChange={e => settingsForm.setData('youtube_link', e.target.value)}
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none" 
+                            placeholder="https://www.youtube.com/embed/..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Gambar Hero Utama (Beranda)</label>
+                        <input 
+                            type="file" 
+                            onChange={e => settingsForm.setData('hero_image', e.target.files[0])}
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 outline-none" 
+                        />
+                        {settings.hero_image && (
+                            <div className="mt-2">
+                                <img src={`/storage/${settings.hero_image}`} alt="Preview" className="h-32 rounded-lg object-cover border" />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="border-t pt-6">
+                        <h4 className="font-bold text-slate-800 mb-4">Slider Galeri (Max 3 Gambar)</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {[1, 2, 3].map(num => (
+                                <div key={num} className="space-y-3">
+                                    <label className="text-sm font-medium text-slate-600">Slide {num}</label>
+                                    <input 
+                                        type="file" 
+                                        onChange={e => settingsForm.setData(`slider_${num}`, e.target.files[0])}
+                                        className="w-full text-xs text-slate-500" 
+                                    />
+                                    {settings.slider_images && settings.slider_images[num - 1] && (
+                                        <img src={`/storage/${settings.slider_images[num - 1]}`} alt={`Slider ${num}`} className="w-full h-24 rounded-lg object-cover border" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <button type="submit" disabled={settingsForm.processing} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50">
+                        {settingsForm.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                    </button>
+                </form>
             </div>
         </div>
     );
@@ -651,7 +919,7 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
                             <td className="p-4 font-bold text-slate-800">{item.year}</td>
                             <td className="p-4 font-medium">{item.title}</td>
                             <td className="p-4">{item.count}</td>
-                            <td className="p-4 text-blue-600 truncate max-w-xs">
+                            <td className="p-4 text-blue-600">
                                 <a href={item.link} target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1">
                                     Link Drive <ExternalLink size={12} />
                                 </a>
@@ -674,6 +942,7 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
         { id: 'proker', label: 'Program Kerja', icon: Calendar, render: renderProker },
         { id: 'berita', label: 'Berita', icon: Newspaper, render: renderBerita },
         { id: 'donasi', label: 'Donasi & Rekening', icon: DollarSign, render: renderDonasi },
+        { id: 'tentang-kami', label: 'Tentang Kami', icon: Users, render: renderTentangKami },
         { id: 'galeri', label: 'Galeri & Arsip', icon: ImageIcon, render: renderGaleri },
         { id: 'pengaturan', label: 'Pengaturan', icon: Settings, render: renderPengaturan },
     ];
@@ -748,6 +1017,10 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
                                  modalType === 'edit_berita' ? 'Edit Berita' :
                                  modalType === 'add_bank' ? 'Tambah Rekening' :
                                  modalType === 'edit_bank' ? 'Edit Rekening' :
+                                 modalType === 'add_bidang' ? 'Tambah Bidang' :
+                                 modalType === 'edit_bidang' ? 'Edit Bidang' :
+                                 modalType === 'add_pengurus' ? 'Tambah Pengurus' :
+                                 modalType === 'edit_pengurus' ? 'Edit Pengurus' :
                                  modalType === 'add_gallery' ? 'Tambah Arsip Galeri' : 'Edit Data'}
                             </h3>
                             <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
@@ -938,6 +1211,163 @@ export default function Dashboard({ stats = [], prokers = [], beritas = [], dona
                                     <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg font-bold hover:bg-slate-100">Batal</button>
                                     <button type="submit" disabled={bankForm.processing} className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700">
                                         {bankForm.processing ? 'Menyimpan...' : 'Simpan'}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {/* BIDANG FORM */}
+                        {(modalType === 'add_bidang' || modalType === 'edit_bidang') && (
+                            <form onSubmit={handleSubmitBidang} className="p-6 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Nama Bidang</label>
+                                    <input 
+                                        type="text" 
+                                        value={bidangForm.data.name}
+                                        onChange={e => bidangForm.setData('name', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Deskripsi</label>
+                                    <textarea 
+                                        value={bidangForm.data.description}
+                                        onChange={e => bidangForm.setData('description', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        rows="4"
+                                        required
+                                    ></textarea>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Urutan</label>
+                                        <input 
+                                            type="number" 
+                                            value={bidangForm.data.order}
+                                            onChange={e => bidangForm.setData('order', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        />
+                                    </div>
+                                    {modalType === 'edit_bidang' && (
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={bidangForm.data.is_active}
+                                                onChange={e => bidangForm.setData('is_active', e.target.checked)}
+                                                className="w-4 h-4"
+                                            />
+                                            <label className="text-sm font-medium">Aktif</label>
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Gambar Bidang</label>
+                                    <input 
+                                        type="file" 
+                                        onChange={e => bidangForm.setData('image', e.target.files[0])}
+                                        className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                    />
+                                </div>
+                                <div className="pt-4 border-t flex justify-end gap-3">
+                                    <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg font-bold hover:bg-slate-100">Batal</button>
+                                    <button type="submit" disabled={bidangForm.processing} className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700">
+                                        {bidangForm.processing ? 'Menyimpan...' : 'Simpan'}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {/* PENGURUS FORM */}
+                        {(modalType === 'add_pengurus' || modalType === 'edit_pengurus') && (
+                            <form onSubmit={handleSubmitPengurus} className="p-6 space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Nama</label>
+                                        <input 
+                                            type="text" 
+                                            value={pengurusForm.data.name}
+                                            onChange={e => pengurusForm.setData('name', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Jabatan</label>
+                                        <input 
+                                            type="text" 
+                                            value={pengurusForm.data.position}
+                                            onChange={e => pengurusForm.setData('position', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">NIM</label>
+                                        <input 
+                                            type="text" 
+                                            value={pengurusForm.data.nim}
+                                            onChange={e => pengurusForm.setData('nim', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Program Studi</label>
+                                        <input 
+                                            type="text" 
+                                            value={pengurusForm.data.prodi}
+                                            onChange={e => pengurusForm.setData('prodi', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Tipe</label>
+                                        <select 
+                                            value={pengurusForm.data.type}
+                                            onChange={e => pengurusForm.setData('type', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        >
+                                            <option value="inti">Pengurus Inti</option>
+                                            <option value="harian">Pengurus Harian</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Urutan</label>
+                                        <input 
+                                            type="number" 
+                                            value={pengurusForm.data.order}
+                                            onChange={e => pengurusForm.setData('order', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                        />
+                                    </div>
+                                </div>
+                                {modalType === 'edit_pengurus' && (
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={pengurusForm.data.is_active}
+                                            onChange={e => pengurusForm.setData('is_active', e.target.checked)}
+                                            className="w-4 h-4"
+                                        />
+                                        <label className="text-sm font-medium">Aktif</label>
+                                    </div>
+                                )}
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Foto</label>
+                                    <input 
+                                        type="file" 
+                                        onChange={e => pengurusForm.setData('photo', e.target.files[0])}
+                                        className="w-full px-4 py-2 rounded-lg border focus:border-blue-500 outline-none" 
+                                    />
+                                </div>
+                                <div className="pt-4 border-t flex justify-end gap-3">
+                                    <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg font-bold hover:bg-slate-100">Batal</button>
+                                    <button type="submit" disabled={pengurusForm.processing} className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700">
+                                        {pengurusForm.processing ? 'Menyimpan...' : 'Simpan'}
                                     </button>
                                 </div>
                             </form>
