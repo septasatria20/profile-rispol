@@ -5,22 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Donation extends Model
+class Contact extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
         'email',
-        'amount',
-        'campaign',
+        'phone',
         'message',
-        'payment_proof',
-        'status',
-    ];
-
-    protected $casts = [
-        'amount'     => 'integer',
-        'created_at' => 'datetime',
+        'status'
     ];
 }

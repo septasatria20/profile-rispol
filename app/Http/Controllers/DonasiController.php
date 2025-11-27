@@ -7,6 +7,7 @@ use App\Models\Donation;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Validation\ValidationException;
 
 class DonasiController extends Controller
 {
@@ -14,64 +15,106 @@ class DonasiController extends Controller
     {
         $campaigns = [
             ['id' => 1, 'name' => 'Operasional Dakwah (Infaq Umum)'],
-            ['id' => 2, 'name' => 'Safari Dakwah 2025'],
+            ['id' => 2, 'name' => 'Safari Dakwah'],
             ['id' => 3, 'name' => 'Polinema Bersholawat'],
-            ['id' => 4, 'name' => 'Santunan Yatim & Dhuafa'],
-            ['id' => 5, 'name' => 'Jumat Berkah'],
+            ['id' => 4, 'name' => 'Firma Jumat'],
         ];
 
-        // Get QRIS from Settings
+        // QRIS dari settings
         $qrisImage = Setting::get('qris_image');
-        $qrisPath = $qrisImage ? '/storage/' . $qrisImage : 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png';
+        $qrisPath = $qrisImage
+            ? '/storage/' . $qrisImage
+            : 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png';
 
-        // Get Active Bank Accounts
-        $banks = BankAccount::where('is_active', true)->get()->map(function($bank) {
-            return [
-                'bank' => $bank->bank_name,
-                'number' => $bank->account_number,
-                'holder' => $bank->account_holder,
-                'logo' => $bank->logo ? '/storage/' . $bank->logo : null,
-            ];
-        });
+        // Rekening aktif
+        $banks = BankAccount::where('is_active', true)
+            ->get()
+            ->map(function ($bank) {
+                return [
+                    'bank'   => $bank->bank_name,
+                    'number' => $bank->account_number,
+                    'holder' => $bank->account_holder,
+                    'logo'   => $bank->logo ? '/storage/' . $bank->logo : null,
+                ];
+            })
+            ->toArray();
 
         $paymentMethods = [
-            'qris' => $qrisPath,
-            'banks' => $banks->toArray(),
+            'qris'  => $qrisPath,
+            'banks' => $banks,
         ];
 
-        // Recent Donors (verified only)
+        // Donatur terakhir (verified)
         $donors = Donation::where('status', 'verified')
             ->latest()
             ->take(8)
             ->get()
-            ->map(function($d) {
+            ->map(function ($d) {
                 return [
-                    'name' => $d->name,
-                    'amount' => $d->amount,
+                    'name'    => $d->name,
+                    'amount'  => $d->amount,
                     'message' => $d->message,
                 ];
             })
             ->toArray();
 
-        // Info Posters
-        $infoPosters = [
-            Setting::get('slider_1') ? '/storage/' . Setting::get('slider_1') : 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=600&auto=format&fit=crop',
-            Setting::get('slider_2') ? '/storage/' . Setting::get('slider_2') : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600&auto=format&fit=crop',
-        ];
-        $infoPosters = array_filter($infoPosters);
-
+        // Poster hero
         $posters = [
             'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=1200&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop',
         ];
 
+        // Info poster dari slider settings (opsional)
+        $infoPosters = [
+            Setting::get('slider_1') ? '/storage/' . Setting::get('slider_1') : null,
+            Setting::get('slider_2') ? '/storage/' . Setting::get('slider_2') : null,
+        ];
+        $infoPosters = array_filter($infoPosters);
+
         return Inertia::render('Donasi', [
-            'campaigns' => $campaigns,
+            'campaigns'      => $campaigns,
             'paymentMethods' => $paymentMethods,
-            'donors' => $donors,
-            'posters' => $posters,
-            'infoPosters' => $infoPosters,
+            'donors'         => $donors,
+            'posters'        => $posters,
+            'infoPosters'    => $infoPosters,
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name'          => 'required|string|max:255',
+                'email'         => 'nullable|email|max:255',
+                'amount'        => 'required|integer|min:10000',
+                'campaign'      => 'required|string|max:255',
+                'message'       => 'nullable|string',
+                'payment_proof' => 'required|image|max:2048',
+            ]);
+
+            if ($request->hasFile('payment_proof')) {
+                $path = $request->file('payment_proof')->store('donations', 'public');
+                $validated['payment_proof'] = $path;
+            }
+
+            $validated['status'] = 'pending';
+
+            Donation::create($validated);
+
+            return redirect()
+                ->back()
+                ->with(
+                    'success',
+                    'Jazakumullah khairan katsiran, donasi berhasil dikirim dan sedang diverifikasi.'
+                );
+        } catch (ValidationException $e) {
+            // biar error validasi tetap muncul di Inertia sebagai errors.*
+            throw $e;
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengirim donasi. Silakan coba lagi.')
+                ->withInput();
+        }
     }
 }

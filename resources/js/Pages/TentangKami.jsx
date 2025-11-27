@@ -4,29 +4,6 @@ import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import { CheckCircle, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
-const PENGURUS_INTI = [
-  { name: 'Nasywa Asilah', role: 'Controller 1', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop' },
-  { name: 'Rachel Makbul D.', role: 'Controller 2', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300&auto=format&fit=crop' },
-  { name: 'Hansen Tanjaya S.', role: 'Treasurer', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300&auto=format&fit=crop' },
-];
-
-const PENGURUS_HARIAN = [
-  { name: 'M. Irsyad Ramadhan', role: 'Dept. Keilmuan', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop' },
-  { name: 'Viola Valentina', role: 'Dept. Adkesma', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&auto=format&fit=crop' },
-  { name: 'Raisha Zaharani A.', role: 'Dept. Pengmas', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=300&auto=format&fit=crop' },
-  { name: 'Dwi Septa', role: 'Dept. PSDM', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=300&auto=format&fit=crop' },
-  { name: 'Siti Aminah', role: 'Dept. Medinfo', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300&auto=format&fit=crop' },
-];
-
-const BIDANG_DATA = [
-  { id: 1, name: 'Mentoring', image: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600&auto=format&fit=crop', desc: 'Membimbing mahasiswa dalam pendalaman nilai-nilai Islam.' },
-  { id: 2, name: 'Ketakmiran', image: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=600&auto=format&fit=crop', desc: 'Memakmurkan masjid kampus dengan aktivitas ibadah.' },
-  { id: 3, name: 'Syiar', image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=600&auto=format&fit=crop', desc: 'Menyebarkan dakwah kreatif melalui event dan media.' },
-  { id: 4, name: 'Humas', image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=600&auto=format&fit=crop', desc: 'Jembatan komunikasi RISPOL dengan pihak luar.' },
-  { id: 5, name: 'Kaderisasi', image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=600&auto=format&fit=crop', desc: 'Sistem regenerasi organisasi untuk masa depan.' },
-  { id: 6, name: 'Keputrian', image: 'https://images.unsplash.com/photo-1526233267232-262e33d0628e?q=80&w=600&auto=format&fit=crop', desc: 'Wadah aktualisasi diri khusus mahasiswi muslimah.' },
-];
-
 const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorderColor }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const itemsPerSlide = 3;
@@ -43,12 +20,14 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
     const next = () => setCurrentIndex((prev) => (prev + 1) % totalSlides);
     const prev = () => setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
 
+    if (members.length === 0) return null;
+
     return (
         <section className={`py-20 lg:py-32 ${bgColor} relative overflow-hidden`}>
-             {/* Background Grid Pattern */}
+            {/* Background Grid Pattern */}
             <div className="absolute inset-0 grid grid-cols-4 md:grid-cols-8 gap-4 opacity-5 blur-sm scale-110 pointer-events-none">
                 {members.slice(0, 16).map((m, i) => (
-                    <div key={i} className="w-full aspect-square bg-cover bg-center" style={{ backgroundImage: `url(${m.img})` }}></div>
+                    <div key={i} className="w-full aspect-square bg-cover bg-center" style={{ backgroundImage: `url(${m.photo ? `/storage/${m.photo}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=300'})` }}></div>
                 ))}
             </div>
 
@@ -68,11 +47,16 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
                                 {members.slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide).map((p, i) => (
                                     <div key={i} className="flex flex-col items-center text-center group">
                                         <div className={`relative w-64 aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border-4 ${cardBorderColor} transition-transform duration-500 group-hover:-translate-y-2`}>
-                                            <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                                            <img 
+                                                src={p.photo ? `/storage/${p.photo}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=300'} 
+                                                alt={p.name} 
+                                                className="w-full h-full object-cover" 
+                                            />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
                                         </div>
                                         <h3 className={`font-serif text-2xl font-bold mt-6 ${textColor === 'text-white' ? 'text-white' : 'text-slate-900'}`}>{p.name}</h3>
-                                        <p className={`${textColor === 'text-white' ? 'text-slate-300' : 'text-slate-600'} text-lg mt-1`}>{p.role}</p>
+                                        <p className={`${textColor === 'text-white' ? 'text-slate-300' : 'text-slate-600'} text-lg mt-1`}>{p.position}</p>
+                                        {p.nim && <p className={`text-sm ${textColor === 'text-white' ? 'text-slate-400' : 'text-slate-500'}`}>{p.nim} - {p.prodi}</p>}
                                     </div>
                                 ))}
                             </div>
@@ -81,10 +65,10 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
 
                     {totalSlides > 1 && (
                         <>
-                            <button onClick={prev} className="absolute top-1/2 -left-4 md:-left-12 -translate-y-1/2 bg-white/70 hover:bg-white text-slate-900 p-3 rounded-full shadow-md transition z-20">
+                            <button onClick={prev} className="absolute left-4 md:-left-12 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-slate-900 p-3 rounded-full shadow-md transition z-20">
                                 <ChevronLeft size={24} />
                             </button>
-                            <button onClick={next} className="absolute top-1/2 -right-4 md:-right-12 -translate-y-1/2 bg-white/70 hover:bg-white text-slate-900 p-3 rounded-full shadow-md transition z-20">
+                            <button onClick={next} className="absolute right-4 md:-right-12 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-slate-900 p-3 rounded-full shadow-md transition z-20">
                                 <ChevronRight size={24} />
                             </button>
                         </>
@@ -95,7 +79,14 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
     );
 };
 
-export default function TentangKami() {
+export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti = [], pengurusHarian = [] }) {
+    // Parse misi menjadi array jika dalam format string dengan line breaks
+    const misiArray = visiMisi.misi ? visiMisi.misi.split('\n').filter(m => m.trim()) : [
+        'Menyelenggarakan pembinaan keislaman yang intensif dan komprehensif.',
+        'Menjadi pusat syiar Islam yang kreatif dan inovatif di lingkungan kampus.',
+        'Memberikan pelayanan dan pengabdian kepada mahasiswa dan masyarakat.'
+    ];
+
     return (
         <div className="min-h-screen bg-white font-sans text-slate-800">
             <Head title="Tentang Kami" />
@@ -108,7 +99,7 @@ export default function TentangKami() {
                         <div className="text-center max-w-4xl mx-auto">
                             <h1 className="font-serif text-4xl md:text-5xl font-bold text-slate-900">Tentang Kami</h1>
                             <p className="text-lg text-slate-600 mt-6 leading-relaxed">
-                                Kami adalah Unit Kegiatan Mahasiswa (UKM) Kerohanian Islam di Politeknik Negeri Malang, wadah untuk mendalami Islam dan menebar manfaat bagi sesama.
+                                {visiMisi.sejarah || 'Kami adalah Unit Kegiatan Mahasiswa (UKM) Kerohanian Islam di Politeknik Negeri Malang, wadah untuk mendalami Islam dan menebar manfaat bagi sesama.'}
                             </p>
                         </div>
                     </div>
@@ -123,14 +114,14 @@ export default function TentangKami() {
                                     <span className="font-sans text-blue-600 font-bold uppercase tracking-wider text-sm">Who We Are</span>
                                     <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mt-3">Visi Kami</h2>
                                     <p className="text-slate-600 text-xl mt-6 leading-relaxed max-w-3xl mx-auto">
-                                        "Terwujudnya RISPOL sebagai UKM Islam yang profesional, inspiratif, dan kontributif dalam membentuk insan akademis yang berakhlak mulia dan bermanfaat bagi umat."
+                                        {visiMisi.visi || '"Terwujudnya RISPOL sebagai UKM Islam yang profesional, inspiratif, dan kontributif dalam membentuk insan akademis yang berakhlak mulia dan bermanfaat bagi umat."'}
                                     </p>
                                 </div>
                                 
                                 <div>
                                     <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-8">Misi Kami</h2>
                                     <div className="grid md:grid-cols-3 gap-6 text-left">
-                                        {['Menyelenggarakan pembinaan keislaman yang intensif dan komprehensif.', 'Menjadi pusat syiar Islam yang kreatif dan inovatif di lingkungan kampus.', 'Memberikan pelayanan dan pengabdian kepada mahasiswa dan masyarakat.'].map((item, i) => (
+                                        {misiArray.slice(0, 3).map((item, i) => (
                                             <div key={i} className="bg-slate-50 p-8 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow hover:border-blue-200">
                                                 <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
                                                     <CheckCircle size={20} />
@@ -149,7 +140,7 @@ export default function TentangKami() {
                 <TeamCarousel 
                     title="Our Team" 
                     subtitle="Pengurus Inti" 
-                    members={PENGURUS_INTI} 
+                    members={pengurusInti} 
                     bgColor="bg-slate-900" 
                     textColor="text-white" 
                     cardBorderColor="border-slate-700"
@@ -159,13 +150,13 @@ export default function TentangKami() {
                 <TeamCarousel 
                     title="" 
                     subtitle="Pengurus Harian" 
-                    members={PENGURUS_HARIAN} 
+                    members={pengurusHarian} 
                     bgColor="bg-slate-50" 
                     textColor="text-slate-900" 
                     cardBorderColor="border-slate-200"
                 />
 
-                {/* Bidang Grid */}
+                {/* Bidang Grid - Dynamic from Database */}
                 <section className="py-20 lg:py-32 bg-white border-t border-slate-100">
                     <div className="container mx-auto px-4 lg:px-8">
                         <div className="text-center max-w-3xl mx-auto">
@@ -174,9 +165,13 @@ export default function TentangKami() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 max-w-5xl mx-auto">
-                            {BIDANG_DATA.map((bidang) => (
+                            {bidangs.map((bidang) => (
                                 <div key={bidang.id} className="group block rounded-2xl shadow-xl overflow-hidden bg-slate-900 relative cursor-pointer h-80">
-                                    <img src={bidang.image} alt={bidang.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-60" />
+                                    <img 
+                                        src={bidang.image ? `/storage/${bidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600'} 
+                                        alt={bidang.name} 
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-60" 
+                                    />
                                     
                                     {/* Overlay Content */}
                                     <div className="absolute inset-0 p-8 flex flex-col justify-center items-center text-center z-10">

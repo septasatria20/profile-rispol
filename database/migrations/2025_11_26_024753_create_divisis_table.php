@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('divisis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bidang_id')->constrained()->onDelete('cascade');
-            $table->string('name'); // Contoh: Kurikulum, Trainer
+            $table->string('name'); 
             $table->timestamps();
         });
 

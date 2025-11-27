@@ -3,52 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\Proker;
+use App\Models\Bidang;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
 class ProkerController extends Controller
 {
-    // Public index for users
+    // Public Page
     public function index(Request $request)
     {
         $query = Proker::query()->where('status', 'Aktif');
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
-            });
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by bidang
-        if ($request->has('bidang') && $request->bidang && $request->bidang !== 'Semua') {
+        if ($request->has('bidang') && $request->bidang !== 'Semua') {
             $query->where('bidang', $request->bidang);
         }
 
-        $prokers = $query->latest()->get()->map(function($proker) {
-            return [
-                'id' => $proker->id,
-                'title' => $proker->title,
-                'bidang' => $proker->bidang,
-                'date' => $proker->date,
-                'description' => $proker->description,
-                'image' => $proker->image,
-            ];
-        });
+        $prokers = $query->latest('date')->get();
+        
+        // Get list of bidangs for filter
+        $bidangs = ['Semua', ...Bidang::where('is_active', true)->pluck('name')->toArray()];
 
         return Inertia::render('Proker', [
             'prokers' => $prokers,
-            'filters' => [
-                'search' => $request->search,
-                'bidang' => $request->bidang,
-            ],
-            'bidangs' => ['Semua', 'Mentoring', 'Ketakmiran', 'Syiar', 'Humas', 'Kaderisasi', 'Keputrian']
+            'bidangs' => $bidangs,
+            'filters' => $request->only(['search', 'bidang']),
         ]);
     }
 
-    // Admin CRUD methods
+    // Admin: Store
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -56,19 +43,20 @@ class ProkerController extends Controller
             'bidang' => 'required|string',
             'date' => 'required|date',
             'description' => 'nullable|string',
+            'status' => 'required|in:Aktif,Selesai',
             'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('prokers', 'public');
-            $validated['image'] = $path;
+            $validated['image'] = $request->file('image')->store('prokers', 'public');
         }
 
         Proker::create($validated);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Program Kerja berhasil ditambahkan');
+        return redirect()->back()->with('success', 'Program kerja berhasil ditambahkan');
     }
 
+    // Admin: Update
     public function update(Request $request, $id)
     {
         $proker = Proker::findOrFail($id);
@@ -77,35 +65,31 @@ class ProkerController extends Controller
             'title' => 'required|string|max:255',
             'bidang' => 'required|string',
             'date' => 'required|date',
-            'status' => 'required|string',
             'description' => 'nullable|string',
+            'status' => 'required|in:Aktif,Selesai',
             'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($proker->image) {
                 Storage::disk('public')->delete($proker->image);
             }
-            $path = $request->file('image')->store('prokers', 'public');
-            $validated['image'] = $path;
+            $validated['image'] = $request->file('image')->store('prokers', 'public');
         }
 
         $proker->update($validated);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Program Kerja berhasil diperbarui');
+        return redirect()->back()->with('success', 'Program kerja berhasil diperbarui');
     }
 
+    // Admin: Destroy
     public function destroy($id)
     {
         $proker = Proker::findOrFail($id);
-        
         if ($proker->image) {
             Storage::disk('public')->delete($proker->image);
         }
-        
         $proker->delete();
-
-        return redirect()->route('admin.dashboard')->with('success', 'Program Kerja berhasil dihapus');
+        return redirect()->back()->with('success', 'Program kerja berhasil dihapus');
     }
 }

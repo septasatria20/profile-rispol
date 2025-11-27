@@ -9,6 +9,8 @@ use App\Models\BankAccount;
 use App\Models\Setting;
 use App\Models\Bidang;
 use App\Models\Pengurus;
+use App\Models\Contact;
+use App\Models\Galeri;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -32,8 +34,9 @@ class AdminController extends Controller
 
         $prokers = Proker::latest()->get();
         $beritas = Berita::latest()->take(10)->get();
-        $donations = Donation::latest()->where('status', 'verified')->take(5)->get();
+        $donations = Donation::latest()->take(10)->get();
         $bankAccounts = BankAccount::where('is_active', true)->get();
+        $contacts = Contact::latest()->take(10)->get();
         
         // Settings
         $heroImage = Setting::get('hero_image');
@@ -48,10 +51,7 @@ class AdminController extends Controller
         ];
         $sliderImages = array_filter($sliderImages); // Remove null values
 
-        $galleries = [
-            ['id' => 1, 'year' => 2025, 'title' => 'Dokumentasi Kegiatan 2025', 'count' => '20 Foto', 'link' => 'https://drive.google.com/drive/folders/xxx'],
-            ['id' => 2, 'year' => 2024, 'title' => 'Dokumentasi Kegiatan 2024', 'count' => '77 Foto', 'link' => 'https://drive.google.com/drive/folders/yyy'],
-        ];
+        $galleries = Galeri::orderBy('year', 'desc')->get();
 
         $bidangs = Bidang::where('is_active', true)->orderBy('order')->get();
         $pengurusInti = Pengurus::where('type', 'inti')->where('is_active', true)->orderBy('order')->get();
@@ -69,6 +69,7 @@ class AdminController extends Controller
             'prokers' => $prokers,
             'beritas' => $beritas,
             'donations' => $donations,
+            'contacts' => $contacts,
             'bankAccounts' => $bankAccounts,
             'galleries' => $galleries,
             'bidangs' => $bidangs,
@@ -389,7 +390,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Pengurus berhasil dihapus');
     }
 
-    // Update Organization Info (Visi, Misi, Sejarah)
+    // Update Organization Info (Visi, Misi, Sejarah) - FIX
     public function updateOrganizationInfo(Request $request)
     {
         $validated = $request->validate([
@@ -407,8 +408,92 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Informasi organisasi berhasil diperbarui');
     }
 
+    // Contact Management
+    public function updateContactStatus(Request $request, $id)
+    {
+        $contact = Contact::findOrFail($id);
+        
+        $validated = $request->validate([
+            'status' => 'required|in:pending,replied',
+        ]);
+
+        $contact->update($validated);
+
+        return redirect()->back()->with('success', 'Status pesan berhasil diperbarui');
+    }
+
+    public function destroyContact($id)
+    {
+        $contact = Contact::findOrFail($id);
+        $contact->delete();
+
+        return redirect()->back()->with('success', 'Pesan berhasil dihapus');
+    }
+
     public function login()
     {
         return Inertia::render('Admin/Login');
+    }
+    
+
+    // Galeri CRUD
+    public function storeGaleri(Request $request)
+    {
+        $validated = $request->validate([
+            'year' => 'required|integer|min:2000|max:2100',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'drive_link' => 'required|url',
+            'photo_count' => 'nullable|integer|min:0',
+            'thumbnail' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('galeris', 'public');
+            $validated['thumbnail'] = $path;
+        }
+
+        Galeri::create($validated);
+
+        return redirect()->back()->with('success', 'Arsip galeri berhasil ditambahkan');
+    }
+
+    public function updateGaleri(Request $request, $id)
+    {
+        $galeri = Galeri::findOrFail($id);
+        
+        $validated = $request->validate([
+            'year' => 'required|integer|min:2000|max:2100',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'drive_link' => 'required|url',
+            'photo_count' => 'nullable|integer|min:0',
+            'thumbnail' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            if ($galeri->thumbnail) {
+                Storage::disk('public')->delete($galeri->thumbnail);
+            }
+            $path = $request->file('thumbnail')->store('galeris', 'public');
+            $validated['thumbnail'] = $path;
+        }
+
+        $galeri->update($validated);
+
+        return redirect()->back()->with('success', 'Arsip galeri berhasil diperbarui');
+    }
+
+    public function destroyGaleri($id)
+    {
+        $galeri = Galeri::findOrFail($id);
+        
+        if ($galeri->thumbnail) {
+            Storage::disk('public')->delete($galeri->thumbnail);
+        }
+        
+        $galeri->delete();
+
+        return redirect()->back()->with('Sukses', 'Arsip galeri berhasil dihapus');
     }
 }

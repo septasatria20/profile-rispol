@@ -8,19 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('donations')) {
-            Schema::create('donations', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('email')->nullable();
-                $table->integer('amount');
-                $table->string('campaign');
-                $table->text('message')->nullable();
-                $table->string('payment_proof')->nullable();
-                $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
-                $table->timestamps();
-            });
-        }
+        Schema::create('donations', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->nullable();   // email boleh null
+            $table->unsignedBigInteger('amount');
+            $table->string('campaign');
+            $table->text('message')->nullable();
+            $table->string('payment_proof')->nullable();
+            $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
+            $table->timestamps();
+        });
     }
 
     public function down(): void

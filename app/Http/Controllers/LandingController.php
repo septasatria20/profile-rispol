@@ -8,6 +8,8 @@ use App\Models\Proker;
 use App\Models\Galeri;
 use App\Models\Berita;
 use App\Models\Setting;
+use App\Models\Contact;
+use App\Models\BankAccount;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -54,5 +56,86 @@ class LandingController extends Controller
         // Pesan::create($request->all());
         
         return redirect()->back()->with('success', 'Pesan terkirim!');
+    }
+
+    public function kontakPage()
+    {
+        return Inertia::render('Kontak');
+    }
+
+    public function storeContact(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'message' => 'required|string',
+        ]);
+
+        Contact::create($validated);
+
+        return redirect()->back()->with('success', 'Pesan Anda berhasil terkirim! Kami akan segera menghubungi Anda.');
+    }
+
+    public function donasiPage()
+    {
+        $bankAccounts = BankAccount::where('is_active', true)->get();
+        $qrisImage = Setting::get('qris_image');
+
+        return Inertia::render('Donasi', [
+            'bankAccounts' => $bankAccounts,
+            'qrisImage' => $qrisImage,
+        ]);
+    }
+
+    public function storeDonation(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'amount' => 'required|numeric|min:10000',
+            'campaign' => 'required|string|max:255',
+            'message' => 'nullable|string',
+            'payment_proof' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('payment_proof')) {
+            $path = $request->file('payment_proof')->store('donations', 'public');
+            $validated['payment_proof'] = $path;
+        }
+
+        \App\Models\Donation::create($validated);
+
+        return redirect()->back()->with('success', 'Terima kasih atas donasi Anda! Kami akan memverifikasi pembayaran Anda segera.');
+    }
+
+    public function tentangKamiPage()
+    {
+        $bidangs = Bidang::where('is_active', true)->orderBy('order')->get();
+        $pengurusInti = Pengurus::where('type', 'inti')->where('is_active', true)->orderBy('order')->get();
+        $pengurusHarian = Pengurus::where('type', 'harian')->where('is_active', true)->orderBy('order')->get();
+        
+        $visiMisi = [
+            'visi' => Setting::get('visi', ''),
+            'misi' => Setting::get('misi', ''),
+            'sejarah' => Setting::get('sejarah', ''),
+        ];
+
+        return Inertia::render('TentangKami', [
+            'bidangs' => $bidangs,
+            'pengurusInti' => $pengurusInti,
+            'pengurusHarian' => $pengurusHarian,
+            'visiMisi' => $visiMisi,
+        ]);
+    }
+
+    // ADDED: Galeri Page Method
+    public function galeriPage()
+    {
+        $galeris = Galeri::orderBy('year', 'desc')->get();
+        return Inertia::render('Galeri', [
+            'galeris' => $galeris
+        ]);
     }
 }

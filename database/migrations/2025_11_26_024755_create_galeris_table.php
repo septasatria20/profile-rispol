@@ -6,26 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('galeris', function (Blueprint $table) {
-            $table->id();
-            $table->year('year');
-            $table->string('title');
-            $table->text('description');
-            $table->string('cover_image')->nullable();
-            $table->string('google_drive_link')->nullable();
-            $table->integer('photo_count')->default(0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('galeris')) {
+            Schema::create('galeris', function (Blueprint $table) {
+                $table->id();
+                $table->year('year');
+                $table->string('title');
+                $table->text('description')->nullable();
+                $table->string('drive_link');
+                $table->integer('photo_count')->default(0);
+                $table->string('thumbnail')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('galeris');
