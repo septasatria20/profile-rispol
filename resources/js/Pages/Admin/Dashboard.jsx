@@ -188,9 +188,14 @@ export default function Dashboard({
     };
     const handleDeleteGaleri = (id) => { if (confirm('Hapus album ini?')) router.delete(`/admin/galeri/${id}`); };
 
-    // 8. Kontak Logic (FUNGSI INI JUGA HILANG SEBELUMNYA)
+    // 8. Kontak Logic
     const handleContactStatus = (id, status) => router.post(`/admin/contacts/${id}/status`, { status });
     const handleDeleteContact = (id) => confirm('Hapus pesan?') && router.delete(`/admin/contacts/${id}`);
+
+    // FIX: Tambahkan handler delete donation yang hilang
+    const handleDeleteDonation = (id) => { 
+        if (confirm('Hapus donasi ini?')) router.delete(`/admin/donations/${id}`); 
+    };
 
     // Utils
     const handleDonationStatus = (id, status) => router.post(`/admin/donations/${id}/status`, { status });
@@ -366,6 +371,13 @@ export default function Dashboard({
                                                         <Eye size={18} />
                                                     </a>
                                                 )}
+                                                <button 
+                                                    onClick={() => handleDeleteDonation(item.id)} 
+                                                    className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg" 
+                                                    title="Hapus"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -435,13 +447,15 @@ export default function Dashboard({
                         ></textarea>
                     </div>
                     <div>
-                        <label className="block text-sm font-bold mb-2">Misi</label>
+                        <label className="block text-sm font-bold mb-2">Misi (Pisahkan dengan enter/baris baru)</label>
                         <textarea 
                             value={orgForm.data.misi} 
                             onChange={e => orgForm.setData('misi', e.target.value)} 
                             className="w-full border rounded-lg p-2" 
                             rows="5"
+                            placeholder="Misi pertama&#10;Misi kedua&#10;Misi ketiga"
                         ></textarea>
+                        <p className="text-xs text-slate-500 mt-1">Tip: Tulis setiap misi di baris terpisah</p>
                     </div>
                     <div>
                         <label className="block text-sm font-bold mb-2">Sejarah</label>
@@ -477,10 +491,39 @@ export default function Dashboard({
                     <div className="flex justify-between items-center mb-6"><h3 className="font-bold text-lg">Pengurus Inti</h3><button onClick={()=>{pengurusForm.setData('type','inti');openAddPengurus()}} className="bg-purple-600 text-white p-2 rounded-lg"><Plus size={16}/></button></div>
                     <div className="space-y-4">{pengurusInti.map(p => (
                         <div key={p.id} className="flex justify-between items-center border p-3 rounded-lg">
-                            <div className="flex items-center gap-3"><div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden">{p.photo && <img src={`/storage/${p.photo}`} className="w-full h-full object-cover"/>}</div><div><div className="font-bold">{p.name}</div><div className="text-xs text-slate-500">{p.position}</div></div></div>
+                            <div className="flex items-center gap-3"><div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden">{p.photo && <img src={`/storage/${p.photo}`} className="w-full h-full object-cover"/>}</div><div><div className="font-bold">{p.name}</div><div className="text-xs text-slate-500">{p.position || p.role}</div></div></div>
                             <div className="flex gap-2"><button onClick={()=>openEditPengurus(p)} className="text-blue-600"><Edit size={14}/></button><button onClick={()=>handleDeletePengurus(p.id)} className="text-red-600"><Trash2 size={14}/></button></div>
                         </div>
                     ))}</div>
+                </div>
+            </div>
+
+            {/* FIX: Tambahkan section Pengurus Harian */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-bold text-lg">Pengurus Harian</h3>
+                    <button onClick={()=>{pengurusForm.setData('type','harian');openAddPengurus()}} className="bg-emerald-600 text-white p-2 rounded-lg">
+                        <Plus size={16}/>
+                    </button>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                    {pengurusHarian.map(p => (
+                        <div key={p.id} className="flex justify-between items-center border p-3 rounded-lg">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden">
+                                    {p.photo && <img src={`/storage/${p.photo}`} className="w-full h-full object-cover"/>}
+                                </div>
+                                <div>
+                                    <div className="font-bold">{p.name}</div>
+                                    <div className="text-xs text-slate-500">{p.position || p.role}</div>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={()=>openEditPengurus(p)} className="text-blue-600"><Edit size={14}/></button>
+                                <button onClick={()=>handleDeletePengurus(p.id)} className="text-red-600"><Trash2 size={14}/></button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

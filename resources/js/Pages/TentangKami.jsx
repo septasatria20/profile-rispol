@@ -80,12 +80,23 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
 };
 
 export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti = [], pengurusHarian = [] }) {
-    // Parse misi menjadi array jika dalam format string dengan line breaks
-    const misiArray = visiMisi.misi ? visiMisi.misi.split('\n').filter(m => m.trim()) : [
-        'Menyelenggarakan pembinaan keislaman yang intensif dan komprehensif.',
-        'Menjadi pusat syiar Islam yang kreatif dan inovatif di lingkungan kampus.',
-        'Memberikan pelayanan dan pengabdian kepada mahasiswa dan masyarakat.'
-    ];
+    // FIX: Parse misi dengan lebih robust, support line breaks dan array
+    const misiArray = React.useMemo(() => {
+        if (!visiMisi.misi) return [
+            'Menyelenggarakan pembinaan keislaman yang intensif dan komprehensif.',
+            'Menjadi pusat syiar Islam yang kreatif dan inovatif di lingkungan kampus.',
+            'Memberikan pelayanan dan pengabdian kepada mahasiswa dan masyarakat.'
+        ];
+        
+        // Jika sudah array, return langsung
+        if (Array.isArray(visiMisi.misi)) return visiMisi.misi;
+        
+        // Parse string dengan berbagai delimiter
+        return visiMisi.misi
+            .split(/\n+/)  // Split by newlines
+            .map(m => m.trim())
+            .filter(m => m.length > 0);  // Remove empty lines
+    }, [visiMisi.misi]);
 
     return (
         <div className="min-h-screen bg-white font-sans text-slate-800">
@@ -120,8 +131,8 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
                                 
                                 <div>
                                     <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-8">Misi Kami</h2>
-                                    <div className="grid md:grid-cols-3 gap-6 text-left">
-                                        {misiArray.slice(0, 3).map((item, i) => (
+                                    <div className={`grid gap-6 text-left ${misiArray.length <= 3 ? 'md:grid-cols-3' : misiArray.length === 4 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+                                        {misiArray.map((item, i) => (
                                             <div key={i} className="bg-slate-50 p-8 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow hover:border-blue-200">
                                                 <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
                                                     <CheckCircle size={20} />

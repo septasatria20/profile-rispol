@@ -74,6 +74,7 @@ Route::prefix('admin')->group(function () {
 
     // Donation Routes
     Route::post('/donations/{id}/status', [AdminController::class, 'updateDonationStatus'])->name('admin.donations.status');
+    Route::delete('/donations/{id}', [AdminController::class, 'destroyDonation'])->name('admin.donations.destroy');
 
     // Contact Routes
     Route::post('/contacts/{id}/status', [AdminController::class, 'updateContactStatus'])->name('admin.contacts.status');

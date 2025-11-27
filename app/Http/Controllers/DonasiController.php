@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankAccount;
-use App\Models\Donation;
 use App\Models\Setting;
+use App\Models\Donation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
