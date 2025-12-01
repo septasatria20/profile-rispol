@@ -175,18 +175,48 @@ export default function Dashboard({
     const handleDeletePengurus = (id) => { if (confirm('Hapus pengurus ini?')) router.delete(`/admin/pengurus/${id}`); };
 
     // 6. Bidang Logic
-    const openAddBidang = () => { bidangForm.reset(); setModalType('add_bidang'); setShowModal(true); };
+    const openAddBidang = () => { 
+        bidangForm.reset(); 
+        setModalType('add_bidang'); 
+        setShowModal(true); 
+    };
     const openEditBidang = (item) => { 
-        bidangForm.setData({ id: item.id, name: item.name, description: item.description, image: null, order: item.order || 0, is_active: item.is_active ?? true }); 
-        setModalType('edit_bidang'); setShowModal(true); 
+        console.log('Editing bidang:', item); // Debug log
+        bidangForm.setData({ 
+            id: item.id, 
+            name: item.name, 
+            description: item.description || '', 
+            image: null, 
+            order: item.order || 0, 
+            is_active: item.is_active ?? true 
+        }); 
+        setModalType('edit_bidang'); 
+        setShowModal(true); 
     };
     const handleSubmitBidang = (e) => {
         e.preventDefault();
+        console.log('Submitting bidang data:', bidangForm.data); // Debug log
         const fd = new FormData();
-        fd.append('name', bidangForm.data.name); fd.append('description', bidangForm.data.description);
+        fd.append('name', bidangForm.data.name); 
+        fd.append('description', bidangForm.data.description || '');
         if(bidangForm.data.order) fd.append('order', bidangForm.data.order);
+        if(bidangForm.data.is_active !== undefined) fd.append('is_active', bidangForm.data.is_active ? '1' : '0');
         if(bidangForm.data.image) fd.append('image', bidangForm.data.image);
-        router.post(modalType === 'add_bidang' ? '/admin/bidangs' : `/admin/bidangs/${bidangForm.data.id}`, fd, { onSuccess: () => { setShowModal(false); bidangForm.reset(); }, forceFormData: true });
+        
+        router.post(
+            modalType === 'add_bidang' ? '/admin/bidangs' : `/admin/bidangs/${bidangForm.data.id}`, 
+            fd, 
+            { 
+                onSuccess: () => { 
+                    setShowModal(false); 
+                    bidangForm.reset(); 
+                },
+                onError: (errors) => {
+                    console.error('Error updating bidang:', errors);
+                },
+                forceFormData: true 
+            }
+        );
     };
     const handleDeleteBidang = (id) => { if (confirm('Hapus bidang ini?')) router.delete(`/admin/bidangs/${id}`); };
 
@@ -285,30 +315,98 @@ export default function Dashboard({
     );
 
     const renderProker = () => (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-fade-in">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="font-bold text-lg text-slate-800">Daftar Program Kerja</h3>
-                <button onClick={openAddProker} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors"><Plus size={16} /> Tambah Proker</button>
+        <div className="space-y-8 animate-fade-in">
+            {/* Program Kerja Table */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h3 className="font-bold text-lg text-slate-800">Daftar Program Kerja</h3>
+                        <p className="text-xs text-slate-500 mt-1">Program kerja yang sudah selesai dilaksanakan</p>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            prokerForm.reset();
+                            prokerForm.setData('status', 'Selesai');
+                            setModalType('add_proker'); 
+                            setShowModal(true);
+                        }} 
+                        className="bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-slate-700 transition-colors"
+                    >
+                        <Plus size={16} /> Tambah Program Kerja
+                    </button>
+                </div>
+                <table className="w-full text-left text-sm text-slate-600">
+                    <thead className="bg-slate-50 text-slate-800 font-bold">
+                        <tr><th className="p-4">Judul Kegiatan</th><th className="p-4">Bidang</th><th className="p-4">Waktu</th><th className="p-4">Status</th><th className="p-4 text-right">Aksi</th></tr>
+                    </thead>
+                    <tbody>
+                        {prokers.filter(p => p.status === 'Selesai').length > 0 ? (
+                            prokers.filter(p => p.status === 'Selesai').map((item) => (
+                                <tr key={item.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4 font-bold">{item.title}</td>
+                                    <td className="p-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">{item.bidang}</span></td>
+                                    <td className="p-4">{item.date}</td>
+                                    <td className="p-4"><span className="px-2 py-1 rounded text-xs font-bold bg-slate-100 text-slate-500">Selesai</span></td>
+                                    <td className="p-4 text-right flex justify-end gap-2">
+                                        <button onClick={() => openEditProker(item)} className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg"><Edit size={16} /></button>
+                                        <button onClick={() => handleDeleteProker(item.id)} className="p-2 hover:bg-red-50 text-red-600 rounded-lg"><Trash2 size={16} /></button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="p-8 text-center text-slate-400">Belum ada program kerja yang selesai.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
-            <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 text-slate-800 font-bold">
-                    <tr><th className="p-4">Judul Kegiatan</th><th className="p-4">Bidang</th><th className="p-4">Waktu</th><th className="p-4">Status</th><th className="p-4 text-right">Aksi</th></tr>
-                </thead>
-                <tbody>
-                    {prokers.map((item) => (
-                        <tr key={item.id} className="border-b hover:bg-slate-50">
-                            <td className="p-4 font-bold">{item.title}</td>
-                            <td className="p-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">{item.bidang}</span></td>
-                            <td className="p-4">{item.date}</td>
-                            <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{item.status}</span></td>
-                            <td className="p-4 text-right flex justify-end gap-2">
-                                <button onClick={() => openEditProker(item)} className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg"><Edit size={16} /></button>
-                                <button onClick={() => handleDeleteProker(item.id)} className="p-2 hover:bg-red-50 text-red-600 rounded-lg"><Trash2 size={16} /></button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+
+            {/* Agenda Table */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h3 className="font-bold text-lg text-slate-800">Daftar Agenda</h3>
+                        <p className="text-xs text-slate-500 mt-1">Agenda kegiatan yang akan atau sedang berlangsung</p>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            prokerForm.reset();
+                            prokerForm.setData('status', 'Aktif');
+                            setModalType('add_proker'); 
+                            setShowModal(true);
+                        }} 
+                        className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-colors"
+                    >
+                        <Plus size={16} /> Tambah Agenda
+                    </button>
+                </div>
+                <table className="w-full text-left text-sm text-slate-600">
+                    <thead className="bg-slate-50 text-slate-800 font-bold">
+                        <tr><th className="p-4">Judul Kegiatan</th><th className="p-4">Bidang</th><th className="p-4">Waktu</th><th className="p-4">Status</th><th className="p-4 text-right">Aksi</th></tr>
+                    </thead>
+                    <tbody>
+                        {prokers.filter(p => p.status === 'Aktif').length > 0 ? (
+                            prokers.filter(p => p.status === 'Aktif').map((item) => (
+                                <tr key={item.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4 font-bold">{item.title}</td>
+                                    <td className="p-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">{item.bidang}</span></td>
+                                    <td className="p-4">{item.date}</td>
+                                    <td className="p-4"><span className="px-2 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-700">Aktif</span></td>
+                                    <td className="p-4 text-right flex justify-end gap-2">
+                                        <button onClick={() => openEditProker(item)} className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg"><Edit size={16} /></button>
+                                        <button onClick={() => handleDeleteProker(item.id)} className="p-2 hover:bg-red-50 text-red-600 rounded-lg"><Trash2 size={16} /></button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="p-8 text-center text-slate-400">Belum ada agenda yang aktif.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 
@@ -899,7 +997,45 @@ export default function Dashboard({
                         
                         {(modalType.includes('bank')) && <form onSubmit={handleSubmitBank} className="p-6 space-y-4"><input type="text" placeholder="Bank" className="w-full border p-2 rounded" value={bankForm.data.bank_name} onChange={e=>bankForm.setData('bank_name',e.target.value)} required/><input type="text" placeholder="No Rek" className="w-full border p-2 rounded" value={bankForm.data.account_number} onChange={e=>bankForm.setData('account_number',e.target.value)} required/><input type="text" placeholder="Atas Nama" className="w-full border p-2 rounded" value={bankForm.data.account_holder} onChange={e=>bankForm.setData('account_holder',e.target.value)} required/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
                         
-                        {(modalType.includes('bidang')) && <form onSubmit={handleSubmitBidang} className="p-6 space-y-4"><input type="text" placeholder="Nama Bidang" className="w-full border p-2 rounded" value={bidangForm.data.name} onChange={e=>bidangForm.setData('name',e.target.value)} required/><textarea placeholder="Deskripsi" className="w-full border p-2 rounded" rows="3" value={bidangForm.data.description} onChange={e=>bidangForm.setData('description',e.target.value)} required></textarea><input type="file" onChange={e=>bidangForm.setData('image',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
+                        {(modalType.includes('bidang')) && (
+                            <form onSubmit={handleSubmitBidang} className="p-6 space-y-4">
+                                <input 
+                                    type="text" 
+                                    placeholder="Nama Bidang" 
+                                    className="w-full border p-2 rounded" 
+                                    value={bidangForm.data.name} 
+                                    onChange={e=>bidangForm.setData('name',e.target.value)} 
+                                    required
+                                />
+                                <textarea 
+                                    placeholder="Deskripsi" 
+                                    className="w-full border p-2 rounded" 
+                                    rows="4" 
+                                    value={bidangForm.data.description} 
+                                    onChange={e=>bidangForm.setData('description',e.target.value)} 
+                                    required
+                                ></textarea>
+                                <div>
+                                    <label className="block text-sm font-bold mb-2">Upload Logo/Gambar Bidang</label>
+                                    <input 
+                                        type="file" 
+                                        onChange={e=>bidangForm.setData('image',e.target.files[0])}
+                                        className="w-full border p-2 rounded"
+                                        accept="image/*"
+                                    />
+                                    {modalType === 'edit_bidang' && (
+                                        <p className="text-xs text-slate-500 mt-1">Kosongkan jika tidak ingin mengubah gambar</p>
+                                    )}
+                                </div>
+                                <button 
+                                    type="submit"
+                                    disabled={bidangForm.processing}
+                                    className="w-full bg-blue-600 text-white py-2 rounded font-bold disabled:opacity-50"
+                                >
+                                    {bidangForm.processing ? 'Menyimpan...' : 'Simpan'}
+                                </button>
+                            </form>
+                        )}
                         
                         {(modalType.includes('pengurus')) && <form onSubmit={handleSubmitPengurus} className="p-6 space-y-4"><input type="text" placeholder="Nama" className="w-full border p-2 rounded" value={pengurusForm.data.name} onChange={e=>pengurusForm.setData('name',e.target.value)} required/><input type="text" placeholder="Jabatan" className="w-full border p-2 rounded" value={pengurusForm.data.position} onChange={e=>pengurusForm.setData('position',e.target.value)} required/><input type="file" onChange={e=>pengurusForm.setData('photo',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
 

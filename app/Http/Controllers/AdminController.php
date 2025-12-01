@@ -343,18 +343,30 @@ class AdminController extends Controller
             'description' => 'required|string',
             'image' => 'nullable|image|max:2048',
             'order' => 'nullable|integer',
-            'is_active' => 'required|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
+
+        // Update fields
+        $bidang->name = $validated['name'];
+        $bidang->description = $validated['description'];
+        
+        if (isset($validated['order'])) {
+            $bidang->order = $validated['order'];
+        }
+        
+        if (isset($validated['is_active'])) {
+            $bidang->is_active = $validated['is_active'];
+        }
 
         if ($request->hasFile('image')) {
             if ($bidang->image) {
                 Storage::disk('public')->delete($bidang->image);
             }
             $path = $request->file('image')->store('bidangs', 'public');
-            $validated['image'] = $path;
+            $bidang->image = $path;
         }
 
-        $bidang->update($validated);
+        $bidang->save();
 
         return redirect()->back()->with('success', 'Bidang berhasil diperbarui');
     }

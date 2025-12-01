@@ -41,7 +41,7 @@ export default function Proker({ prokers, filters, bidangs }) {
                 {/* Hero Section */}
                 <section className="pt-32 pb-20 bg-white border-b border-slate-200">
                     <div className="container mx-auto px-4 text-center">
-                        <h1 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 mb-6 animate-fade-in">Program Kerja</h1>
+                        <h1 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 mb-6 animate-fade-in">Program Kerja & Agenda</h1>
                         <p className="text-lg text-slate-600 max-w-2xl mx-auto animate-slide-up">
                             Berbagai kegiatan dan agenda dakwah yang kami persembahkan untuk civitas akademika Polinema dan masyarakat umum.
                         </p>
@@ -95,6 +95,9 @@ export default function Proker({ prokers, filters, bidangs }) {
                                             />
                                             <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-blue-600 shadow-sm">
                                                 {proker.bidang}
+                                            </div>
+                                            <div className={`absolute top-4 right-4 ${proker.status === 'Selesai' ? 'bg-slate-500' : 'bg-emerald-500'} text-white px-3 py-1 rounded-lg text-xs font-bold shadow-sm`}>
+                                                {proker.status === 'Selesai' ? 'Program Kerja' : 'Agenda'}
                                             </div>
                                         </div>
                                         <div className="p-6 flex flex-col flex-grow">

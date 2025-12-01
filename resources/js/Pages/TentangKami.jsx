@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
-import { CheckCircle, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { CheckCircle, ChevronLeft, ChevronRight, ArrowRight, X } from 'lucide-react';
 
 const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorderColor }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -80,7 +80,9 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
 };
 
 export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti = [], pengurusHarian = [] }) {
-    // FIX: Parse misi dengan lebih robust, support line breaks dan array
+    const [selectedBidang, setSelectedBidang] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const misiArray = React.useMemo(() => {
         if (!visiMisi.misi) return [
             'Menyelenggarakan pembinaan keislaman yang intensif dan komprehensif.',
@@ -88,15 +90,25 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
             'Memberikan pelayanan dan pengabdian kepada mahasiswa dan masyarakat.'
         ];
         
-        // Jika sudah array, return langsung
         if (Array.isArray(visiMisi.misi)) return visiMisi.misi;
         
-        // Parse string dengan berbagai delimiter
         return visiMisi.misi
-            .split(/\n+/)  // Split by newlines
+            .split(/\n+/)  
             .map(m => m.trim())
-            .filter(m => m.length > 0);  // Remove empty lines
+            .filter(m => m.length > 0);  
     }, [visiMisi.misi]);
+
+    const openBidangModal = (bidang) => {
+        setSelectedBidang(bidang);
+        setIsModalOpen(true);
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeBidangModal = () => {
+        setIsModalOpen(false);
+        document.body.style.overflow = 'unset';
+        setTimeout(() => setSelectedBidang(null), 300);
+    };
 
     return (
         <div className="min-h-screen bg-white font-sans text-slate-800">
@@ -177,7 +189,11 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 max-w-5xl mx-auto">
                             {bidangs.map((bidang) => (
-                                <div key={bidang.id} className="group block rounded-2xl shadow-xl overflow-hidden bg-white relative cursor-pointer h-96">
+                                <div 
+                                    key={bidang.id} 
+                                    onClick={() => openBidangModal(bidang)}
+                                    className="group block rounded-2xl shadow-xl overflow-hidden bg-white relative cursor-pointer h-96"
+                                >
                                     <div className="relative w-full h-full bg-white p-8 flex items-center justify-center">
                                         <img 
                                             src={bidang.image ? `/storage/${bidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600'} 
@@ -201,6 +217,49 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
                     </div>
                 </section>
             </main>
+
+            {/* Modal Detail Bidang */}
+            {isModalOpen && selectedBidang && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+                    onClick={closeBidangModal}
+                >
+                    <div 
+                        className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="relative h-64 overflow-hidden rounded-t-3xl bg-slate-900 flex items-center justify-center p-8">
+                            <img
+                                src={selectedBidang.image ? `/storage/${selectedBidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=800'}
+                                alt={selectedBidang.name}
+                                className="w-full h-full object-contain"
+                            />
+                            
+                            <button
+                                onClick={closeBidangModal}
+                                className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all shadow-lg"
+                            >
+                                <X size={20} className="text-slate-700" />
+                            </button>
+                        </div>
+
+                        <div className="p-8">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
+                                <span className="text-sm font-bold text-blue-600 uppercase tracking-wider">Bidang</span>
+                            </div>
+                            
+                            <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-6">
+                                {selectedBidang.name}
+                            </h2>
+
+                            <p className="text-slate-600 text-lg leading-relaxed whitespace-pre-line">
+                                {selectedBidang.description}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>
