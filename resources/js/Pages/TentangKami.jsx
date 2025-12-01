@@ -177,15 +177,17 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 max-w-5xl mx-auto">
                             {bidangs.map((bidang) => (
-                                <div key={bidang.id} className="group block rounded-2xl shadow-xl overflow-hidden bg-slate-900 relative cursor-pointer h-80">
-                                    <img 
-                                        src={bidang.image ? `/storage/${bidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600'} 
-                                        alt={bidang.name} 
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-60" 
-                                    />
+                                <div key={bidang.id} className="group block rounded-2xl shadow-xl overflow-hidden bg-white relative cursor-pointer h-96">
+                                    <div className="relative w-full h-full bg-white p-8 flex items-center justify-center">
+                                        <img 
+                                            src={bidang.image ? `/storage/${bidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600'} 
+                                            alt={bidang.name} 
+                                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" 
+                                        />
+                                    </div>
                                     
                                     {/* Overlay Content */}
-                                    <div className="absolute inset-0 p-8 flex flex-col justify-center items-center text-center z-10">
+                                    <div className="absolute inset-0 p-8 flex flex-col justify-center items-center text-center z-10 bg-slate-900/0 group-hover:bg-slate-900/95 transition-all duration-500 opacity-0 group-hover:opacity-100">
                                         <span className="font-sans text-sm font-bold text-blue-400 uppercase tracking-wider mb-2">Bidang</span>
                                         <h3 className="font-serif text-4xl font-bold text-white mb-6">{bidang.name}</h3>
                                         
@@ -193,9 +195,6 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
                                             Selengkapnya <ArrowRight size={16} />
                                         </div>
                                     </div>
-                                    
-                                    {/* Gradient Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-slate-900/30 pointer-events-none"></div>
                                 </div>
                             ))}
                         </div>

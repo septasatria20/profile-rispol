@@ -530,33 +530,200 @@ export default function Dashboard({
     );
 
     const renderPengaturan = () => (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 animate-fade-in">
-            <h3 className="font-bold text-lg text-slate-800 mb-6">Pengaturan Umum</h3>
-            <form onSubmit={handleSubmitSettings} className="space-y-6">
-                <div><label className="block text-sm font-bold mb-2">Youtube Link</label><input type="text" value={settingsForm.data.youtube_link} onChange={e=>settingsForm.setData('youtube_link', e.target.value)} className="w-full border rounded-lg p-2"/></div>
-                <div><label className="block text-sm font-bold mb-2">Hero Image</label><input type="file" onChange={e=>settingsForm.setData('hero_image', e.target.files[0])} className="w-full border rounded-lg p-2"/></div>
-                <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Simpan</button>
-            </form>
+        <div className="space-y-8 animate-fade-in">
+            {/* Pengaturan Umum */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <h3 className="font-bold text-lg text-slate-800 mb-6">Pengaturan Umum</h3>
+                <form onSubmit={handleSubmitSettings} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Youtube Link</label>
+                        <input 
+                            type="text" 
+                            value={settingsForm.data.youtube_link} 
+                            onChange={e=>settingsForm.setData('youtube_link', e.target.value)} 
+                            className="w-full border rounded-lg p-2"
+                            placeholder="https://youtube.com/embed/..."
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Hero Image</label>
+                        <input 
+                            type="file" 
+                            onChange={e=>settingsForm.setData('hero_image', e.target.files[0])} 
+                            className="w-full border rounded-lg p-2"
+                            accept="image/*"
+                        />
+                        {settings.hero_image && (
+                            <div className="mt-2">
+                                <img src={`/storage/${settings.hero_image}`} className="w-40 h-24 object-cover rounded border" alt="Hero" />
+                            </div>
+                        )}
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={settingsForm.processing}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {settingsForm.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                    </button>
+                </form>
+            </div>
+
+            {/* FIX: Tambahkan Pengaturan Slider Images */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <h3 className="font-bold text-lg text-slate-800 mb-6">Slider Homepage (3 Gambar)</h3>
+                <form onSubmit={handleSubmitSettings} className="space-y-6">
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {/* Slider 1 */}
+                        <div>
+                            <label className="block text-sm font-bold mb-2">Slider 1</label>
+                            <input 
+                                type="file" 
+                                onChange={e=>settingsForm.setData('slider_1', e.target.files[0])} 
+                                className="w-full border rounded-lg p-2 text-sm"
+                                accept="image/*"
+                            />
+                            {settings.slider_1 && (
+                                <div className="mt-2">
+                                    <img 
+                                        src={`/storage/${settings.slider_1}`} 
+                                        className="w-full h-40 object-cover rounded border" 
+                                        alt="Slider 1" 
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Slider 2 */}
+                        <div>
+                            <label className="block text-sm font-bold mb-2">Slider 2</label>
+                            <input 
+                                type="file" 
+                                onChange={e=>settingsForm.setData('slider_2', e.target.files[0])} 
+                                className="w-full border rounded-lg p-2 text-sm"
+                                accept="image/*"
+                            />
+                            {settings.slider_2 && (
+                                <div className="mt-2">
+                                    <img 
+                                        src={`/storage/${settings.slider_2}`} 
+                                        className="w-full h-40 object-cover rounded border" 
+                                        alt="Slider 2" 
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Slider 3 */}
+                        <div>
+                            <label className="block text-sm font-bold mb-2">Slider 3</label>
+                            <input 
+                                type="file" 
+                                onChange={e=>settingsForm.setData('slider_3', e.target.files[0])} 
+                                className="w-full border rounded-lg p-2 text-sm"
+                                accept="image/*"
+                            />
+                            {settings.slider_3 && (
+                                <div className="mt-2">
+                                    <img 
+                                        src={`/storage/${settings.slider_3}`} 
+                                        className="w-full h-40 object-cover rounded border" 
+                                        alt="Slider 3" 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={settingsForm.processing}
+                        className="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 disabled:opacity-50"
+                    >
+                        {settingsForm.processing ? 'Menyimpan...' : 'Update Slider Images'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 
     const renderGaleri = () => (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-fade-in">
-            <div className="p-6 border-b flex justify-between items-center"><h3 className="font-bold text-lg">Arsip Galeri</h3><button onClick={openAddGaleri} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex gap-2 font-bold"><Plus size={16}/> Tambah</button></div>
-            <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 font-bold"><tr><th className="p-4">Tahun</th><th className="p-4">Judul</th><th className="p-4">Link</th><th className="p-4 text-right">Aksi</th></tr></thead>
-                <tbody>
-                    {galleries.map(g => (
-                        <tr key={g.id} className="border-b">
-                            <td className="p-4 font-bold">{g.year}</td><td className="p-4">{g.title}</td>
-                            <td className="p-4 text-blue-600"><a href={g.link || g.drive_link} target="_blank">Link Drive</a></td>
-                            <td className="p-4 text-right flex justify-end gap-2"><button onClick={()=>openEditGaleri(g)} className="text-blue-600"><Edit size={16}/></button><button onClick={()=>handleDeleteGaleri(g.id)} className="text-red-600"><Trash2 size={16}/></button></td>
+            <div className="p-6 border-b flex justify-between items-center">
+                <h3 className="font-bold text-lg text-slate-800">Arsip Galeri</h3>
+                <button 
+                    onClick={openAddGaleri} 
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 font-bold hover:bg-blue-700"
+                >
+                    <Plus size={16} /> Tambah Album
+                </button>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-600">
+                    <thead className="bg-slate-50 font-bold text-slate-800">
+                        <tr>
+                            <th className="p-4">Tahun</th>
+                            <th className="p-4">Judul</th>
+                            <th className="p-4">Link Drive</th>
+                            <th className="p-4">Jumlah Foto</th>
+                            <th className="p-4 text-right">Aksi</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {galleries.map((g) => (
+                            <tr key={g.id} className="border-b hover:bg-slate-50">
+                                <td className="p-4 font-bold">{g.year}</td>
+                                <td className="p-4">{g.title}</td>
+                                <td className="p-4">
+                                    <a
+                                        href={g.link || g.drive_link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs font-medium"
+                                    >
+                                        <ExternalLink size={14} /> Buka Drive
+                                    </a>
+                                </td>
+                                <td className="p-4 text-sm">
+                                    {g.photo_count || g.count || 0} foto
+                                </td>
+                                <td className="p-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={() => openEditGaleri(g)}
+                                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
+                                            title="Edit"
+                                        >
+                                            <Edit size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteGaleri(g.id)}
+                                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50"
+                                            title="Hapus"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+
+                        {galleries.length === 0 && (
+                            <tr>
+                                <td colSpan="5" className="p-8 text-center text-slate-400">
+                                    Belum ada data galeri.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
+
 
     const MENU_ITEMS = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, render: renderDashboard },

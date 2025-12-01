@@ -166,17 +166,19 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
 
                         <div className="grid md:grid-cols-3 gap-8">
                             {bidangs && bidangs.map((bidang) => (
-                                <div key={bidang.id} className="group h-80 perspective w-full cursor-pointer">
+                                <div key={bidang.id} className="group h-96 perspective w-full cursor-pointer">
                                     <div className="relative w-full h-full duration-700 preserve-3d flip-card-inner">
                                         {/* Front Side */}
                                         <div className="absolute w-full h-full backface-hidden rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-white">
                                             {bidang.image ? (
-                                                <img src={`/storage/${bidang.image}`} alt={bidang.name} className="w-full h-full object-cover" />
+                                                <div className="relative w-full h-full bg-white p-6 flex items-center justify-center">
+                                                    <img src={`/storage/${bidang.image}`} alt={bidang.name} className="w-full h-full object-contain" />
+                                                </div>
                                             ) : (
                                                 <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400">No Image</div>
                                             )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-90"></div>
-                                            <div className="absolute bottom-6 left-6">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-900 to-transparent">
                                                 <h3 className="text-2xl font-bold text-white">{bidang.name}</h3>
                                                 <div className="h-1 w-12 bg-blue-500 rounded-full mt-2"></div>
                                             </div>
@@ -222,6 +224,96 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Section Website Mentoring */}
+                <section className="py-20 lg:py-32 bg-gradient-to-br from-emerald-50 via-white to-blue-50 relative overflow-hidden">
+                    {/* Decorative Elements */}
+                    <div className="absolute inset-0 opacity-10">
+                        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-500 rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+                    </div>
+
+                    <div className="container mx-auto px-4 lg:px-8 relative z-10">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="grid lg:grid-cols-2 gap-12 items-center">
+                                {/* Image Side */}
+                                <div className="relative group">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div className="relative bg-white p-4 rounded-3xl shadow-2xl">
+                                        <img 
+                                            src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800" 
+                                            alt="Mentoring Polinema"
+                                            className="w-full h-80 object-cover rounded-2xl"
+                                        />
+                                        <div className="absolute inset-4 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent rounded-2xl flex items-end p-8">
+                                            <div className="text-white">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                                                    <span className="text-sm font-bold">Program Wajib</span>
+                                                </div>
+                                                <h4 className="font-serif text-2xl font-bold">Portal Mentoring</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Content Side */}
+                                <div className="space-y-6">
+                                    <div>
+                                        <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+                                            Mentoring Keagamaan
+                                        </span>
+                                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                                            Website Mentoring Polinema
+                                        </h2>
+                                        <p className="text-lg text-slate-600 leading-relaxed mb-6">
+                                            Sistem Informasi dan Pusat Layanan Mentoring Keagamaan Politeknik Negeri Malang. Kelola janji temu, penggantian, dan monitoring penugasan mentoringmu dengan mudah melalui platform digital kami.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-3">
+                                            <CheckCircle className="text-emerald-600 mt-1 flex-shrink-0" size={20} />
+                                            <div>
+                                                <h4 className="font-bold text-slate-800">Janji Temu Semaumu</h4>
+                                                <p className="text-sm text-slate-600">Ambil sertifikat mentoring dengan waktu pilihan</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <CheckCircle className="text-emerald-600 mt-1 flex-shrink-0" size={20} />
+                                            <div>
+                                                <h4 className="font-bold text-slate-800">Ganti Sertifikatmu yang hilang</h4>
+                                                <p className="text-sm text-slate-600">Penggantian sertifikat dengan Surat Keterangan/Kehilangan</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <CheckCircle className="text-emerald-600 mt-1 flex-shrink-0" size={20} />
+                                            <div>
+                                                <h4 className="font-bold text-slate-800">Monitoring dan Ganti Progresmu yang kurang</h4>
+                                                <p className="text-sm text-slate-600">Pantau penugasan dan progres mentoring Anda</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4">
+                                        <a 
+                                            href="https://simentorpolinema.com" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 group"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                            </svg>
+                                            Kunjungi Website Mentoring
+                                            <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

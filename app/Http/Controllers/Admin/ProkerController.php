@@ -1,60 +1,97 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Proker;
+use App\Models\Bidang;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class ProkerController extends Controller
 {
-    public function index()
+    // Public Page
+    public function index(Request $request)
     {
-        // Menampilkan daftar proker
-        return Inertia::render('Admin/Proker/Index', [
-            'prokers' => Proker::latest()->get()
+        $query = Proker::query()->where('status', 'Aktif');
+
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('bidang') && $request->bidang !== 'Semua') {
+            $query->where('bidang', $request->bidang);
+        }
+
+        $prokers = $query->latest('date')->get();
+        
+        // Get list of bidangs for filter
+        $bidangs = ['Semua', ...Bidang::where('is_active', true)->pluck('name')->toArray()];
+
+        return Inertia::render('Proker', [
+            'prokers' => $prokers,
+            'bidangs' => $bidangs,
+            'filters' => $request->only(['search', 'bidang']),
         ]);
     }
 
-    public function create()
-    {
-        // Menampilkan form tambah
-        return Inertia::render('Admin/Proker/Create');
-    }
-
+    // Admin: Store
     public function store(Request $request)
     {
-        // Validasi & Simpan
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'category' => 'required',
+            'bidang' => 'required|string',
             'date' => 'required|date',
-            'description' => 'nullable'
+            'description' => 'nullable|string',
+            'status' => 'required|in:Aktif,Selesai',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        Proker::create($request->all());
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('prokers', 'public');
+        }
 
-        return redirect()->route('prokers.index')->with('success', 'Proker berhasil ditambahkan');
+        Proker::create($validated);
+
+        return redirect()->back()->with('success', 'Program kerja berhasil ditambahkan');
     }
 
-    public function edit(Proker $proker)
+    // Admin: Update
+    public function update(Request $request, $id)
     {
-        return Inertia::render('Admin/Proker/Edit', [
-            'proker' => $proker
+        $proker = Proker::findOrFail($id);
+        
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'bidang' => 'required|string',
+            'date' => 'required|date',
+            'description' => 'nullable|string',
+            'status' => 'required|in:Aktif,Selesai',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($proker->image) {
+                Storage::disk('public')->delete($proker->image);
+            }
+            $validated['image'] = $request->file('image')->store('prokers', 'public');
+        }
+
+        $proker->update($validated);
+
+        return redirect()->back()->with('success', 'Program kerja berhasil diperbarui');
     }
 
-    public function update(Request $request, Proker $proker)
+    // Admin: Destroy
+    public function destroy($id)
     {
-        // Logika update (mirip store)
-        $proker->update($request->all());
-        return redirect()->route('prokers.index');
-    }
-
-    public function destroy(Proker $proker)
-    {
+        $proker = Proker::findOrFail($id);
+        if ($proker->image) {
+            Storage::disk('public')->delete($proker->image);
+        }
         $proker->delete();
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Program kerja berhasil dihapus');
     }
 }
+
+
