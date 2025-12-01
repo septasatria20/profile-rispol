@@ -54,6 +54,7 @@ export default function Dashboard({
         youtube_link: settings?.youtube_link || '', 
         hero_image: null, 
         qris_image: null, 
+        mentoring_image: null, // Add this
         donation_poster_1: null,
         donation_poster_2: null,
         donation_poster_3: null,
@@ -107,13 +108,14 @@ export default function Dashboard({
     };
     const handleDeleteBank = (id) => { if (confirm('Hapus rekening ini?')) router.delete(`/admin/bank-accounts/${id}`); };
 
-    // 4. Settings & Org Info Logic (FUNGSI INI YANG SEBELUMNYA HILANG)
+    // 4. Settings & Org Info Logic
     const handleSubmitSettings = (e) => {
         e.preventDefault();
         const fd = new FormData();
         fd.append('youtube_link', settingsForm.data.youtube_link);
         if (settingsForm.data.hero_image) fd.append('hero_image', settingsForm.data.hero_image);
         if (settingsForm.data.qris_image) fd.append('qris_image', settingsForm.data.qris_image);
+        if (settingsForm.data.mentoring_image) fd.append('mentoring_image', settingsForm.data.mentoring_image); // Add this
         
         // Add donation posters
         for (let i = 1; i <= 5; i++) {
@@ -700,6 +702,22 @@ export default function Dashboard({
                         {settings.hero_image && (
                             <div className="mt-2">
                                 <img src={`/storage/${settings.hero_image}`} className="w-40 h-24 object-cover rounded border" alt="Hero" />
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Gambar Section Mentoring</label>
+                        <p className="text-xs text-slate-500 mb-2">Gambar untuk section Website Mentoring Polinema di homepage</p>
+                        <input 
+                            type="file" 
+                            onChange={e=>settingsForm.setData('mentoring_image', e.target.files[0])} 
+                            className="w-full border rounded-lg p-2"
+                            accept="image/*"
+                        />
+                        {settings.mentoring_image && (
+                            <div className="mt-2">
+                                <img src={`/storage/${settings.mentoring_image}`} className="w-40 h-24 object-cover rounded border" alt="Mentoring" />
                             </div>
                         )}
                     </div>

@@ -32,7 +32,6 @@ class LandingController extends Controller
         ];
 
         return Inertia::render('Home', [
-            // Mengirim data ke props React
             'bidangs' => Bidang::where('is_active', true)->orderBy('order')->get(),
             'pengurusInti' => Pengurus::where('type', 'inti')->where('is_active', true)->orderBy('order')->get(),
             'pengurusHarian' => Pengurus::where('type', 'harian')->where('is_active', true)->orderBy('order')->get(),
@@ -41,8 +40,9 @@ class LandingController extends Controller
             'galeris' => Galeri::orderBy('year', 'desc')->get(),
             'heroImage' => Setting::get('hero_image'),
             'youtubeLink' => Setting::get('youtube_link'),
-            'sliderImages' => array_values($sliderImages), // Re-index array
-            'sliderTitles' => $sliderTitles, // Add this line
+            'mentoringImage' => Setting::get('mentoring_image'), // Add this
+            'sliderImages' => array_values($sliderImages),
+            'sliderTitles' => $sliderTitles,
             'visiMisi' => [
                 'visi' => Setting::get('visi', ''),
                 'misi' => Setting::get('misi', ''),

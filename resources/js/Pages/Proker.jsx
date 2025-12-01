@@ -32,6 +32,26 @@ export default function Proker({ prokers, filters, bidangs }) {
         setTimeout(() => setSelectedProker(null), 300);
     };
 
+    const handleShareProker = async () => {
+        const shareData = {
+            title: selectedProker.title,
+            text: `Lihat program kerja RISPOL: ${selectedProker.title} - ${selectedProker.date}`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                // Fallback: Copy to clipboard
+                await navigator.clipboard.writeText(window.location.href);
+                alert('Link berhasil disalin ke clipboard!');
+            }
+        } catch (err) {
+            console.log('Error sharing:', err);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
             <Head title="Program Kerja" />
@@ -215,9 +235,18 @@ export default function Proker({ prokers, filters, bidangs }) {
                             )}
 
                             {/* Action Buttons */}
-                            <div className="flex pt-6 border-t border-slate-100">
-                                <button className="w-full py-3 px-6 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all">
-                                    Bagikan Kegiatan
+                            <div className="flex gap-4 pt-6 border-t border-slate-100">
+                                <button 
+                                    onClick={closeModal}
+                                    className="flex-1 py-3 px-6 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                                >
+                                    Tutup
+                                </button>
+                                <button 
+                                    onClick={handleShareProker}
+                                    className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                                >
+                                    Bagikan Kegiatan <ArrowRight size={16} />
                                 </button>
                             </div>
                         </div>

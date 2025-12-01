@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
-import { ChevronRight, Play, CheckCircle, ArrowRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, Play, CheckCircle, ArrowRight, ChevronLeft, X } from 'lucide-react';
 
-export default function Home({ bidangs, prokers, news, heroImage, sliderImages = [], sliderTitles = [], youtubeLink }) {
+export default function Home({ bidangs, prokers, news, heroImage, sliderImages = [], sliderTitles = [], youtubeLink, mentoringImage }) {
     // Slider State - Use dynamic slider images from backend
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [selectedBerita, setSelectedBerita] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Default slider if no images from backend
     const GALLERY_SLIDER = sliderImages.length > 0 
@@ -30,6 +32,38 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
 
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % GALLERY_SLIDER.length);
     const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + GALLERY_SLIDER.length) % GALLERY_SLIDER.length);
+
+    const openBeritaModal = (berita) => {
+        setSelectedBerita(berita);
+        setIsModalOpen(true);
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeBeritaModal = () => {
+        setIsModalOpen(false);
+        document.body.style.overflow = 'unset';
+        setTimeout(() => setSelectedBerita(null), 300);
+    };
+
+    const handleShareBerita = async () => {
+        const shareData = {
+            title: selectedBerita.title,
+            text: `Baca berita terbaru dari RISPOL: ${selectedBerita.title}`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                // Fallback: Copy to clipboard
+                await navigator.clipboard.writeText(window.location.href);
+                alert('Link berhasil disalin ke clipboard!');
+            }
+        } catch (err) {
+            console.log('Error sharing:', err);
+        }
+    };
 
     return (
         <div className="min-h-screen font-sans text-slate-800 bg-slate-50 selection:bg-blue-200 animate-fade-in overflow-hidden">
@@ -209,7 +243,11 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                         
                         <div className="grid md:grid-cols-3 gap-8">
                             {news && news.map((item) => (
-                                <div key={item.id} className="group bg-white rounded-xl overflow-hidden border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all">
+                                <div 
+                                    key={item.id} 
+                                    className="group bg-white rounded-xl overflow-hidden border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all cursor-pointer"
+                                    onClick={() => openBeritaModal(item)}
+                                >
                                     <div className="h-48 overflow-hidden">
                                         <img 
                                             src={item.image ? `/storage/${item.image}` : 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400&auto=format&fit=crop'} 
@@ -220,7 +258,9 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                     <div className="p-6">
                                         <span className="text-xs font-bold text-blue-600 mb-2 block">{item.published_at}</span>
                                         <h3 className="text-lg font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">{item.title}</h3>
-                                        <button className="text-sm text-slate-500 font-medium hover:text-slate-800 flex items-center gap-1">Baca Selengkapnya <ChevronRight size={12} /></button>
+                                        <button className="text-sm text-slate-500 font-medium hover:text-slate-800 flex items-center gap-1">
+                                            Baca Selengkapnya <ChevronRight size={12} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -244,7 +284,7 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
                                     <div className="relative bg-white p-4 rounded-3xl shadow-2xl">
                                         <img 
-                                            src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800" 
+                                            src={mentoringImage ? `/storage/${mentoringImage}` : "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800"} 
                                             alt="Mentoring Polinema"
                                             className="w-full h-80 object-cover rounded-2xl"
                                         />
@@ -319,6 +359,75 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                 </section>
             </main>
 
+            {/* Modal Detail Berita */}
+            {isModalOpen && selectedBerita && (
+                <div 
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    onClick={closeBeritaModal}
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+                >
+                    <div 
+                        className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ zIndex: 10000 }}
+                    >
+                        {/* Modal Header with Image */}
+                        <div className="relative h-72 overflow-hidden rounded-t-3xl">
+                            <img
+                                src={selectedBerita.image ? `/storage/${selectedBerita.image}` : 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200&auto=format&fit=crop'}
+                                alt={selectedBerita.title}
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                            
+                            <button
+                                onClick={closeBeritaModal}
+                                className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all shadow-lg z-10"
+                            >
+                                <X size={20} className="text-slate-700" />
+                            </button>
+                            
+                            <div className="absolute bottom-6 left-6 right-6">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold">
+                                        Berita
+                                    </div>
+                                    <span className="text-white/90 text-sm font-medium">{selectedBerita.published_at}</span>
+                                </div>
+                                <h2 className="text-3xl md:text-4xl font-serif font-bold text-white">
+                                    {selectedBerita.title}
+                                </h2>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-8">
+                            <div className="prose prose-slate max-w-none">
+                                <p className="text-slate-600 text-lg leading-relaxed whitespace-pre-line">
+                                    {selectedBerita.content}
+                                </p>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-4 pt-6 border-t border-slate-100 mt-8">
+                                <button 
+                                    onClick={closeBeritaModal}
+                                    className="flex-1 py-3 px-6 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                                >
+                                    Tutup
+                                </button>
+                                <button 
+                                    onClick={handleShareBerita}
+                                    className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                                >
+                                    Bagikan Berita <ArrowRight size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Footer />
             
             {/* Global CSS Styles for Animations */}
@@ -347,8 +456,13 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                     from { opacity: 0; transform: translateX(50px); }
                     to { opacity: 1; transform: translateX(0); }
                 }
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
                 .animate-slide-right { animation: slideRight 0.8s ease-out forwards; }
                 .animate-slide-left { animation: slideLeft 0.8s ease-out forwards; }
+                .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
                 
                 @keyframes blob {
                     0% { transform: translate(0px, 0px) scale(1); }
@@ -363,7 +477,10 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                     animation-delay: 2s;
                 }
                 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes fadeIn { 
+                    from { opacity: 0; } 
+                    to { opacity: 1; } 
+                }
             `}</style>
         </div>
     );

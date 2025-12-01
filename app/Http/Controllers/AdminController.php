@@ -87,6 +87,7 @@ class AdminController extends Controller
                 'hero_image' => $heroImage,
                 'youtube_link' => $youtubeLink,
                 'qris_image' => $qrisImage,
+                'mentoring_image' => Setting::get('mentoring_image'), // Add this
                 'slider_1' => Setting::get('slider_1'),
                 'slider_1_title' => Setting::get('slider_1_title'),
                 'slider_2' => Setting::get('slider_2'),
@@ -223,6 +224,7 @@ class AdminController extends Controller
             'youtube_link' => 'nullable|url',
             'hero_image' => 'nullable|image|max:2048',
             'qris_image' => 'nullable|image|max:2048',
+            'mentoring_image' => 'nullable|image|max:2048',
             'donation_poster_1' => 'nullable|image|max:3072',
             'donation_poster_2' => 'nullable|image|max:3072',
             'donation_poster_3' => 'nullable|image|max:3072',
@@ -254,6 +256,16 @@ class AdminController extends Controller
             }
             $path = $request->file('qris_image')->store('settings', 'public');
             Setting::set('qris_image', $path);
+        }
+
+        // Handle Mentoring Image (NEW)
+        if ($request->hasFile('mentoring_image')) {
+            $oldImage = Setting::get('mentoring_image');
+            if ($oldImage) {
+                Storage::disk('public')->delete($oldImage);
+            }
+            $path = $request->file('mentoring_image')->store('settings', 'public');
+            Setting::set('mentoring_image', $path);
         }
 
         // Handle Donation Posters (5 images)
@@ -587,3 +599,5 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Arsip galeri berhasil dihapus');
     }
 }
+
+
