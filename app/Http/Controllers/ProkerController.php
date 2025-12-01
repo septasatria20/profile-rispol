@@ -9,58 +9,104 @@ use Illuminate\Support\Facades\Storage;
 
 class ProkerController extends Controller
 {
-    public function index()
+    // Public page - untuk user
+    public function index(Request $request)
     {
-        return Inertia::render('ProgramKerja', [
-            'prokers' => Proker::where('status', 'Aktif')->orderBy('date', 'desc')->get()
+        $search = $request->input('search', '');
+        $bidang = $request->input('bidang', 'Semua');
+
+        // Query prokers
+        $query = Proker::query();
+
+        // Filter by bidang
+        if ($bidang !== 'Semua') {
+            $query->where('bidang', $bidang);
+        }
+
+        // Search by title or description
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Get results
+        $prokers = $query->latest()->get();
+
+        // Get all unique bidangs for filter
+        $bidangs = ['Semua', 'Syiar', 'Mentoring', 'Humas', 'Ketakmiran', 'Kaderisasi', 'Keputrian'];
+
+        return Inertia::render('Proker', [
+            'prokers' => $prokers,
+            'filters' => [
+                'search' => $search,
+                'bidang' => $bidang,
+            ],
+            'bidangs' => $bidangs,
         ]);
     }
 
+    // Admin CRUD methods
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required',
-            'bidang' => 'required',
+            'title' => 'required|string|max:255',
+            'bidang' => 'required|string',
             'date' => 'required|date',
-            'status' => 'required',
-            'description' => 'nullable',
-            'image' => 'nullable|image'
+            'status' => 'required|in:Aktif,Selesai',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('prokers', 'public');
+            $path = $request->file('image')->store('prokers', 'public');
+            $validated['image'] = $path;
         }
 
         Proker::create($validated);
-        return redirect()->back()->with('success', 'Proker berhasil ditambahkan');
+
+        return redirect()->back()->with('success', 'Program kerja berhasil ditambahkan');
     }
 
     public function update(Request $request, $id)
     {
         $proker = Proker::findOrFail($id);
+
         $validated = $request->validate([
-            'title' => 'required',
-            'bidang' => 'required',
+            'title' => 'required|string|max:255',
+            'bidang' => 'required|string',
             'date' => 'required|date',
-            'status' => 'required',
-            'description' => 'nullable',
-            'image' => 'nullable|image'
+            'status' => 'required|in:Aktif,Selesai',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
-            if ($proker->image) Storage::disk('public')->delete($proker->image);
-            $validated['image'] = $request->file('image')->store('prokers', 'public');
+            // Delete old image
+            if ($proker->image) {
+                Storage::disk('public')->delete($proker->image);
+            }
+            $path = $request->file('image')->store('prokers', 'public');
+            $validated['image'] = $path;
         }
 
         $proker->update($validated);
-        return redirect()->back()->with('success', 'Proker berhasil diupdate');
+
+        return redirect()->back()->with('success', 'Program kerja berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         $proker = Proker::findOrFail($id);
-        if ($proker->image) Storage::disk('public')->delete($proker->image);
+
+        // Delete image if exists
+        if ($proker->image) {
+            Storage::disk('public')->delete($proker->image);
+        }
+
         $proker->delete();
-        return redirect()->back()->with('success', 'Proker dihapus');
+
+        return redirect()->back()->with('success', 'Program kerja berhasil dihapus');
     }
 }

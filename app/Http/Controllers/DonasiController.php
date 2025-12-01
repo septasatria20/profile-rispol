@@ -58,11 +58,21 @@ class DonasiController extends Controller
             })
             ->toArray();
 
-        // Poster hero
-        $posters = [
-            'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=1200&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop',
-        ];
+        // Poster Donasi (Multiple) - Portrait A4
+        $donationPosters = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $poster = Setting::get("donation_poster_{$i}");
+            if ($poster) {
+                $donationPosters[] = '/storage/' . $poster;
+            }
+        }
+
+        // Fallback jika tidak ada poster
+        if (empty($donationPosters)) {
+            $donationPosters = [
+                'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=1200&auto=format&fit=crop',
+            ];
+        }
 
         // Info poster dari slider settings (opsional)
         $infoPosters = [
@@ -72,11 +82,11 @@ class DonasiController extends Controller
         $infoPosters = array_filter($infoPosters);
 
         return Inertia::render('Donasi', [
-            'campaigns'      => $campaigns,
-            'paymentMethods' => $paymentMethods,
-            'donors'         => $donors,
-            'posters'        => $posters,
-            'infoPosters'    => $infoPosters,
+            'campaigns'       => $campaigns,
+            'paymentMethods'  => $paymentMethods,
+            'donors'          => $donors,
+            'donationPosters' => $donationPosters,
+            'infoPosters'     => $infoPosters,
         ]);
     }
 

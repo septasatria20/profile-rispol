@@ -36,6 +36,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
+    // Settings - Menggunakan AdminController
+    Route::post('/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+    
     // Proker Routes
     Route::post('/prokers', [ProkerController::class, 'store'])->name('admin.prokers.store');
     Route::post('/prokers/{id}', [ProkerController::class, 'update'])->name('admin.prokers.update');
@@ -68,9 +71,6 @@ Route::prefix('admin')->group(function () {
 
     // Organization Info Routes
     Route::post('/organization-info', [AdminController::class, 'updateOrganizationInfo'])->name('admin.organization.update');
-
-    // Settings Routes
-    Route::post('/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
 
     // Donation Routes
     Route::post('/donations/{id}/status', [AdminController::class, 'updateDonationStatus'])->name('admin.donations.status');

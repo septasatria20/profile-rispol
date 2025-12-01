@@ -43,7 +43,7 @@ export default function Donasi({
     campaigns = [],
     paymentMethods = { qris: null, banks: [] },
     donors = [],
-    posters = [],
+    donationPosters = [], // Multiple posters untuk slider di bawah
     infoPosters = [],
 }) {
     const { flash = {} } = usePage().props;
@@ -51,8 +51,8 @@ export default function Donasi({
     // Step wizard: 1 = isi data, 2 = pilih metode + upload bukti
     const [step, setStep] = useState(1);
 
-    // Slider poster & donatur
-    const [currentPoster, setCurrentPoster] = useState(0);
+    // Slider poster donasi & donatur
+    const [currentDonationPoster, setCurrentDonationPoster] = useState(0);
     const [currentDonor, setCurrentDonor] = useState(0);
 
     // Tab metode pembayaran: 'qris' | 'bank'
@@ -89,15 +89,15 @@ export default function Donasi({
         }
     }, [flash.success, flash.error]);
 
-    // Auto slide poster
+    // Auto slide donation posters (bagian bawah)
     useEffect(() => {
-        if (!posters.length) return;
+        if (!donationPosters || donationPosters.length <= 1) return;
         const timer = setInterval(
-            () => setCurrentPoster((prev) => (prev + 1) % posters.length),
-            6000
+            () => setCurrentDonationPoster((prev) => (prev + 1) % donationPosters.length),
+            5000 // 5 detik
         );
         return () => clearInterval(timer);
-    }, [posters.length]);
+    }, [donationPosters]);
 
     // Auto slide donor
     useEffect(() => {
@@ -188,23 +188,16 @@ export default function Donasi({
             />
 
             <main className="pt-24">
-                {/* Hero / Poster Slider */}
+                {/* Hero / Poster dengan Text Overlay (DIKEMBALIKAN KE DESAIN AWAL) */}
                 <section className="relative h-[400px] w-full overflow-hidden bg-slate-900 md:h-[500px]">
-                    {posters.map((poster, index) => (
-                        <div
-                            key={index}
-                            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                                index === currentPoster ? 'opacity-100' : 'opacity-0'
-                            }`}
-                        >
-                            <img
-                                src={poster}
-                                alt={`Poster ${index + 1}`}
-                                className="h-full w-full object-cover opacity-60"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                        </div>
-                    ))}
+                    <div className="absolute inset-0">
+                        <img
+                            src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=1200&auto=format&fit=crop"
+                            alt="Donasi RISPOL"
+                            className="h-full w-full object-cover opacity-60"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                    </div>
 
                     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
                         <span className="mb-4 rounded-full bg-amber-500 px-4 py-1 text-sm font-bold text-white">
@@ -219,31 +212,18 @@ export default function Donasi({
                             seratus biji." (QS. Al-Baqarah: 261)
                         </p>
                     </div>
-
-                    <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-                        {posters.map((_, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => setCurrentPoster(idx)}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                    idx === currentPoster
-                                        ? 'w-8 bg-amber-500'
-                                        : 'w-2 bg-white/50 hover:bg-white'
-                                }`}
-                            />
-                        ))}
-                    </div>
                 </section>
 
-                <div className="container mx-auto px-4 py-16">
-                    <div className="grid gap-12 lg:grid-cols-12">
-                        {/* KIRI: Card yang berganti Step 1 / Step 2 */}
-                        <div className="space-y-8 lg:col-span-7">
+                <div className="max-w-6xl mx-auto px-4 py-16">
+                    {/* ATAS: Form Donasi (Kiri) + Poster A4 (Kanan) */}
+                    <div className="grid gap-4 lg:grid-cols-2 mb-12 items-start">
+                        {/* KIRI: Form Donasi (Step 1 atau Step 2) */}
+                        <div>
                             {step === 1 ? (
                                 // =========================
                                 // LANGKAH 1: Form Donasi
                                 // =========================
-                                <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-xl">
+                                <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-xl h-full">
                                     <div className="mb-4 flex items-center justify-between">
                                         <div>
                                             <h2 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
@@ -414,7 +394,7 @@ export default function Donasi({
                                 // =========================
                                 // LANGKAH 2: Metode Pembayaran + Bukti
                                 // =========================
-                                <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-xl">
+                                <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-xl h-full">
                                     <div className="mb-4 flex items-center justify-between">
                                         <div>
                                             <h3 className="flex items-center gap-2 text-xl font-bold text-slate-900">
@@ -590,99 +570,122 @@ export default function Donasi({
                             )}
                         </div>
 
-                        {/* KANAN: Donatur & ucapan terima kasih */}
-                        <div className="space-y-8 lg:col-span-5">
-                            {/* Donatur */}
-                            <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-lg">
-                                <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-800">
-                                    <Wallet className="text-emerald-500" /> Para Donatur
-                                </h3>
-
-                                {(!donors || donors.length === 0) && (
-                                    <p className="text-sm text-slate-500">
-                                        Belum ada donasi yang ditampilkan.
-                                    </p>
-                                )}
-
-                                {donors && donors.length > 0 && (
-                                    <div className="space-y-3 transition-all duration-500">
-                                        {getVisibleDonors().map((donor, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-start gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4"
-                                            >
-                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
-                                                    {donor.name.charAt(0)}
+                        {/* KANAN: Slider Poster A4 Donasi */}
+                        <div className="lg:sticky lg:top-24 lg:self-start">
+                            {donationPosters && donationPosters.length > 0 && (
+                                <div className="flex justify-center lg:justify-start">
+                                    {/* BESARKAN sedikit & samakan “panjang” dengan kartu lain */}
+                                    <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-lg w-full max-w-xl">
+                                        <div className="relative aspect-[3/4] w-full">
+                                            {donationPosters.map((poster, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`absolute inset-0 transition-opacity duration-1000 ${
+                                                        index === currentDonationPoster ? 'opacity-100' : 'opacity-0'
+                                                    }`}
+                                                >
+                                                    <img
+                                                        src={poster}
+                                                        alt={`Poster Donasi ${index + 1}`}
+                                                        className="h-full w-full object-contain bg-white p-2"
+                                                    />
                                                 </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-start justify-between">
-                                                        <h4 className="text-sm font-bold text-slate-800">
-                                                            {donor.name}
-                                                        </h4>
-                                                        <span className="text-sm font-bold text-emerald-600">
-                                                            {new Intl.NumberFormat('id-ID', {
-                                                                style: 'currency',
-                                                                currency: 'IDR',
-                                                                minimumFractionDigits: 0,
-                                                            }).format(donor.amount)}
-                                                        </span>
-                                                    </div>
-                                                    {donor.message && (
-                                                        <p className="mt-1 line-clamp-1 text-xs italic text-slate-500">
-                                                            "{donor.message}"
-                                                        </p>
-                                                    )}
+                                            ))}
+
+                                            {donationPosters.length > 1 && (
+                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                                                    {donationPosters.map((_, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => setCurrentDonationPoster(idx)}
+                                                            className={`h-2 rounded-full transition-all duration-300 ${
+                                                                idx === currentDonationPoster
+                                                                    ? 'w-8 bg-amber-500'
+                                                                    : 'w-2 bg-slate-400/50 hover:bg-slate-600'
+                                                            }`}
+                                                        />
+                                                    ))}
                                                 </div>
-                                            </div>
-                                        ))}
+                                            )}
+                                        </div>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
+                        </div>
 
-                            {/* Thank you note */}
-                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 p-8 text-white shadow-xl">
+                    </div>
+
+                    {/* BAWAH: Para Donatur (Kiri) + Jazakumullah (Kanan) */}
+                    <div className="grid gap-4 lg:grid-cols-2 items-stretch">
+                        {/* KIRI BAWAH: Para Donatur */}
+                        <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-lg">
+                            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-800">
+                                <Wallet className="text-emerald-500" /> Para Donatur
+                            </h3>
+
+                            {(!donors || donors.length === 0) && (
+                                <p className="text-sm text-slate-500">
+                                    Belum ada donasi yang ditampilkan.
+                                </p>
+                            )}
+
+                            {donors && donors.length > 0 && (
+                                <div className="space-y-3 transition-all duration-500">
+                                    {getVisibleDonors().map((donor, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-start gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4"
+                                        >
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+                                                {donor.name.charAt(0)}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-start justify-between">
+                                                    <h4 className="text-sm font-bold text-slate-800">
+                                                        {donor.name}
+                                                    </h4>
+                                                    <span className="text-sm font-bold text-emerald-600">
+                                                        {new Intl.NumberFormat('id-ID', {
+                                                            style: 'currency',
+                                                            currency: 'IDR',
+                                                            minimumFractionDigits: 0,
+                                                        }).format(donor.amount)}
+                                                    </span>
+                                                </div>
+                                                {donor.message && (
+                                                    <p className="mt-1 line-clamp-1 text-xs italic text-slate-500">
+                                                        "{donor.message}"
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* KANAN BAWAH: Jazakumullah Khairan */}
+                        <div className="flex h-full justify-start">
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 p-6 text-white shadow-lg h-full min-h-[260px] w-full max-w-lg">
                                 <Quote className="absolute right-4 top-4 h-16 w-16 rotate-180 text-white/20" />
                                 <h3 className="relative z-10 mb-4 text-2xl font-serif font-bold">
                                     Jazakumullah Khairan Katsiran
                                 </h3>
                                 <p className="relative z-10 leading-relaxed text-blue-100">
-                                    Terima kasih atas donasi yang telah Anda berikan. Semoga
-                                    Allah membalas kebaikan Anda dengan pahala yang berlipat
-                                    ganda, menjadi amal jariyah, dan pembuka pintu rezeki yang
-                                    berkah. Aamiin.
+                                    Terima kasih atas donasi yang telah Anda berikan. Semoga Allah
+                                    membalas kebaikan Anda dengan pahala yang berlipat ganda, menjadi
+                                    amal jariyah, dan pembuka pintu rezeki yang berkah. Aamiin.
                                 </p>
                                 <div className="relative z-10 mt-6 flex items-center gap-3">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 font-bold">
                                         R
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold">
-                                            Pengurus RISPOL
-                                        </p>
-                                        <p className="text-xs text-blue-200">
-                                            Politeknik Negeri Malang
-                                        </p>
+                                        <p className="text-sm font-bold">Pengurus RISPOL</p>
+                                        <p className="text-xs text-blue-200">Politeknik Negeri Malang</p>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Info posters (opsional) */}
-                            {infoPosters.length > 0 && (
-                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
-                                    {infoPosters.map((src, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-md"
-                                        >
-                                            <img
-                                                src={src}
-                                                alt={`Info ${idx + 1}`}
-                                                className="h-40 w-full object-cover"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>

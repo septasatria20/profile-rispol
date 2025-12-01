@@ -51,7 +51,19 @@ export default function Dashboard({
     const prokerForm = useForm({ id: '', title: '', bidang: 'Syiar', date: '', status: 'Aktif', description: '', image: null });
     const beritaForm = useForm({ id: '', title: '', content: '', published_at: '', image: null });
     const bankForm = useForm({ id: '', bank_name: '', account_number: '', account_holder: '', is_active: true, logo: null });
-    const settingsForm = useForm({ youtube_link: settings?.youtube_link || '', hero_image: null, qris_image: null, slider_1: null, slider_2: null, slider_3: null });
+    const settingsForm = useForm({ 
+        youtube_link: settings?.youtube_link || '', 
+        hero_image: null, 
+        qris_image: null, 
+        donation_poster_1: null,
+        donation_poster_2: null,
+        donation_poster_3: null,
+        donation_poster_4: null,
+        donation_poster_5: null,
+        slider_1: null, 
+        slider_2: null, 
+        slider_3: null 
+    });
     const bidangForm = useForm({ id: '', name: '', description: '', image: null, order: 0, is_active: true });
     const pengurusForm = useForm({ id: '', name: '', position: '', nim: '', prodi: '', photo: null, type: 'inti', order: 0, is_active: true });
     const orgForm = useForm({ visi: visiMisi.visi || '', misi: visiMisi.misi || '', sejarah: visiMisi.sejarah || '' });
@@ -100,8 +112,25 @@ export default function Dashboard({
         fd.append('youtube_link', settingsForm.data.youtube_link);
         if (settingsForm.data.hero_image) fd.append('hero_image', settingsForm.data.hero_image);
         if (settingsForm.data.qris_image) fd.append('qris_image', settingsForm.data.qris_image);
-        ['slider_1', 'slider_2', 'slider_3'].forEach(k => { if(settingsForm.data[k]) fd.append(k, settingsForm.data[k]); });
-        router.post('/admin/settings', fd, { forceFormData: true });
+        
+        // Add donation posters
+        for (let i = 1; i <= 5; i++) {
+            const key = `donation_poster_${i}`;
+            if (settingsForm.data[key]) fd.append(key, settingsForm.data[key]);
+        }
+        
+        // Add sliders
+        ['slider_1', 'slider_2', 'slider_3'].forEach(k => { 
+            if(settingsForm.data[k]) fd.append(k, settingsForm.data[k]); 
+        });
+        
+        router.post('/admin/settings', fd, { 
+            forceFormData: true,
+            onSuccess: () => {
+                // Reset form after success
+                settingsForm.reset();
+            }
+        });
     };
     const handleSubmitOrgInfo = (e) => {
         e.preventDefault();
@@ -299,6 +328,7 @@ export default function Dashboard({
 
     const renderDonasi = () => (
         <div className="space-y-8 animate-fade-in">
+            {/* Pengaturan QRIS */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
                 <h3 className="font-bold text-lg text-slate-800 mb-6">Pengaturan QRIS Donasi</h3>
                 <form onSubmit={handleSubmitSettings} className="flex items-end gap-4">
@@ -307,6 +337,46 @@ export default function Dashboard({
                 </form>
                 {settings.qris_image && <div className="w-32 h-32 mt-4 border rounded p-2"><img src={`/storage/${settings.qris_image}`} className="w-full h-full object-contain"/></div>}
             </div>
+
+            {/* Poster Donasi (Portrait A4) - Maksimal 5 Poster */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <h3 className="font-bold text-lg text-slate-800 mb-6">Poster Halaman Donasi (Portrait A4)</h3>
+                <p className="text-sm text-slate-600 mb-6">Upload maksimal 5 poster yang akan ditampilkan bergantian setiap 5 detik. Rekomendasi rasio 3:4 (misal: 1200x1600px)</p>
+                
+                <form onSubmit={handleSubmitSettings} className="space-y-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[1, 2, 3, 4, 5].map((num) => (
+                            <div key={num}>
+                                <label className="block text-sm font-bold mb-2">Poster {num}</label>
+                                <input 
+                                    type="file" 
+                                    onChange={e=>settingsForm.setData(`donation_poster_${num}`, e.target.files[0])} 
+                                    className="w-full border rounded-lg p-2 text-sm"
+                                    accept="image/*"
+                                />
+                                {settings[`donation_poster_${num}`] && (
+                                    <div className="mt-3">
+                                        <img 
+                                            src={`/storage/${settings[`donation_poster_${num}`]}`} 
+                                            className="w-full h-64 object-contain rounded border shadow-sm bg-white p-2" 
+                                            alt={`Poster ${num}`} 
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={settingsForm.processing}
+                        className="bg-amber-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-700 disabled:opacity-50"
+                    >
+                        {settingsForm.processing ? 'Menyimpan...' : 'Update Poster Donasi'}
+                    </button>
+                </form>
+            </div>
+
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Donatur List */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -571,7 +641,7 @@ export default function Dashboard({
                 </form>
             </div>
 
-            {/* FIX: Tambahkan Pengaturan Slider Images */}
+            {/* Pengaturan Slider Images */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
                 <h3 className="font-bold text-lg text-slate-800 mb-6">Slider Homepage (3 Gambar)</h3>
                 <form onSubmit={handleSubmitSettings} className="space-y-6">
@@ -833,8 +903,8 @@ export default function Dashboard({
                         {(modalType.includes('bidang')) && <form onSubmit={handleSubmitBidang} className="p-6 space-y-4"><input type="text" placeholder="Nama Bidang" className="w-full border p-2 rounded" value={bidangForm.data.name} onChange={e=>bidangForm.setData('name',e.target.value)} required/><textarea placeholder="Deskripsi" className="w-full border p-2 rounded" rows="3" value={bidangForm.data.description} onChange={e=>bidangForm.setData('description',e.target.value)} required></textarea><input type="file" onChange={e=>bidangForm.setData('image',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
                         
                         {(modalType.includes('pengurus')) && <form onSubmit={handleSubmitPengurus} className="p-6 space-y-4"><input type="text" placeholder="Nama" className="w-full border p-2 rounded" value={pengurusForm.data.name} onChange={e=>pengurusForm.setData('name',e.target.value)} required/><input type="text" placeholder="Jabatan" className="w-full border p-2 rounded" value={pengurusForm.data.position} onChange={e=>pengurusForm.setData('position',e.target.value)} required/><input type="file" onChange={e=>pengurusForm.setData('photo',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
-                        
-                        {(modalType.includes('galeri')) && <form onSubmit={handleSubmitGaleri} className="p-6 space-y-4"><input type="number" placeholder="Tahun" className="w-full border p-2 rounded" value={galeriForm.data.year} onChange={e=>galeriForm.setData('year',e.target.value)} required/><input type="text" placeholder="Judul Album" className="w-full border p-2 rounded" value={galeriForm.data.title} onChange={e=>galeriForm.setData('title',e.target.value)} required/><input type="text" placeholder="Link Drive" className="w-full border p-2 rounded" value={galeriForm.data.drive_link} onChange={e=>galeriForm.setData('drive_link',e.target.value)} required/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
+
+                       {(modalType.includes('galeri')) && <form onSubmit={handleSubmitGaleri} className="p-6 space-y-4"><input type="number" placeholder="Tahun" className="w-full border p-2 rounded" value={galeriForm.data.year} onChange={e=>galeriForm.setData('year',e.target.value)} required/><input type="text" placeholder="Judul Album" className="w-full border p-2 rounded" value={galeriForm.data.title} onChange={e=>galeriForm.setData('title',e.target.value)} required/><input type="text" placeholder="Link Drive" className="w-full border p-2 rounded" value={galeriForm.data.drive_link} onChange={e=>galeriForm.setData('drive_link',e.target.value)} required/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
                     </div>
                 </div>
             )}

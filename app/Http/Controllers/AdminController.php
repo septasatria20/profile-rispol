@@ -49,7 +49,16 @@ class AdminController extends Controller
             Setting::get('slider_2'),
             Setting::get('slider_3'),
         ];
-        $sliderImages = array_filter($sliderImages); // Remove null values
+        $sliderImages = array_filter($sliderImages);
+
+        // Donation Posters (max 5)
+        $donationPosters = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $poster = Setting::get("donation_poster_{$i}");
+            if ($poster) {
+                $donationPosters["donation_poster_{$i}"] = $poster;
+            }
+        }
 
         $galleries = Galeri::orderBy('year', 'desc')->get();
 
@@ -76,12 +85,14 @@ class AdminController extends Controller
             'pengurusInti' => $pengurusInti,
             'pengurusHarian' => $pengurusHarian,
             'visiMisi' => $visiMisi,
-            'settings' => [
+            'settings' => array_merge([
                 'hero_image' => $heroImage,
                 'youtube_link' => $youtubeLink,
                 'qris_image' => $qrisImage,
-                'slider_images' => $sliderImages,
-            ],
+                'slider_1' => Setting::get('slider_1'),
+                'slider_2' => Setting::get('slider_2'),
+                'slider_3' => Setting::get('slider_3'),
+            ], $donationPosters),
         ]);
     }
 
@@ -211,11 +222,17 @@ class AdminController extends Controller
             'youtube_link' => 'nullable|url',
             'hero_image' => 'nullable|image|max:2048',
             'qris_image' => 'nullable|image|max:2048',
+            'donation_poster_1' => 'nullable|image|max:3072',
+            'donation_poster_2' => 'nullable|image|max:3072',
+            'donation_poster_3' => 'nullable|image|max:3072',
+            'donation_poster_4' => 'nullable|image|max:3072',
+            'donation_poster_5' => 'nullable|image|max:3072',
             'slider_1' => 'nullable|image|max:2048',
             'slider_2' => 'nullable|image|max:2048',
             'slider_3' => 'nullable|image|max:2048',
         ]);
 
+        // Handle Hero Image
         if ($request->hasFile('hero_image')) {
             $oldImage = Setting::get('hero_image');
             if ($oldImage) {
@@ -225,6 +242,7 @@ class AdminController extends Controller
             Setting::set('hero_image', $path);
         }
 
+        // Handle QRIS Image
         if ($request->hasFile('qris_image')) {
             $oldImage = Setting::get('qris_image');
             if ($oldImage) {
@@ -234,7 +252,20 @@ class AdminController extends Controller
             Setting::set('qris_image', $path);
         }
 
-        // Slider Images
+        // Handle Donation Posters (5 images)
+        for ($i = 1; $i <= 5; $i++) {
+            $key = "donation_poster_{$i}";
+            if ($request->hasFile($key)) {
+                $oldImage = Setting::get($key);
+                if ($oldImage) {
+                    Storage::disk('public')->delete($oldImage);
+                }
+                $path = $request->file($key)->store('settings/donation_posters', 'public');
+                Setting::set($key, $path);
+            }
+        }
+
+        // Handle Slider Images (3 images)
         for ($i = 1; $i <= 3; $i++) {
             $key = "slider_{$i}";
             if ($request->hasFile($key)) {
@@ -247,6 +278,7 @@ class AdminController extends Controller
             }
         }
 
+        // Handle YouTube Link
         if ($request->youtube_link) {
             Setting::set('youtube_link', $request->youtube_link);
         }
@@ -266,6 +298,19 @@ class AdminController extends Controller
         $donation->update($validated);
 
         return redirect()->back()->with('success', 'Status donasi berhasil diperbarui');
+    }
+
+    public function destroyDonation($id)
+    {
+        $donation = Donation::findOrFail($id);
+        
+        if ($donation->payment_proof) {
+            Storage::disk('public')->delete($donation->payment_proof);
+        }
+        
+        $donation->delete();
+
+        return redirect()->back()->with('success', 'Donasi berhasil dihapus');
     }
 
     // Bidang CRUD
@@ -331,17 +376,18 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'role' => 'required|string|max:255',
             'nim' => 'nullable|string|max:255',
             'prodi' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:2048',
             'type' => 'required|in:inti,harian',
             'order' => 'nullable|integer',
         ]);
 
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('pengurus', 'public');
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('pengurus', 'public');
             $validated['photo'] = $path;
+            unset($validated['image']);
         }
 
         Pengurus::create($validated);
@@ -355,21 +401,22 @@ class AdminController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'role' => 'required|string|max:255',
             'nim' => 'nullable|string|max:255',
             'prodi' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:2048',
             'type' => 'required|in:inti,harian',
             'order' => 'nullable|integer',
             'is_active' => 'required|boolean',
         ]);
 
-        if ($request->hasFile('photo')) {
+        if ($request->hasFile('image')) {
             if ($pengurus->photo) {
                 Storage::disk('public')->delete($pengurus->photo);
             }
-            $path = $request->file('photo')->store('pengurus', 'public');
+            $path = $request->file('image')->store('pengurus', 'public');
             $validated['photo'] = $path;
+            unset($validated['image']);
         }
 
         $pengurus->update($validated);
@@ -390,7 +437,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Pengurus berhasil dihapus');
     }
 
-    // Update Organization Info (Visi, Misi, Sejarah) - FIX
+    // Update Organization Info (Visi, Misi, Sejarah)
     public function updateOrganizationInfo(Request $request)
     {
         $validated = $request->validate([
@@ -434,7 +481,6 @@ class AdminController extends Controller
     {
         return Inertia::render('Admin/Login');
     }
-    
 
     // Galeri CRUD
     public function storeGaleri(Request $request)
@@ -494,6 +540,6 @@ class AdminController extends Controller
         
         $galeri->delete();
 
-        return redirect()->back()->with('Sukses', 'Arsip galeri berhasil dihapus');
+        return redirect()->back()->with('success', 'Arsip galeri berhasil dihapus');
     }
 }
