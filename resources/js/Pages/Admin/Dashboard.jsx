@@ -28,7 +28,6 @@ export default function Dashboard({
     galleries = [], 
     bidangs = [], 
     pengurusInti = [], 
-    pengurusHarian = [], 
     visiMisi = {}, 
     settings = {} 
 }) {
@@ -60,12 +59,15 @@ export default function Dashboard({
         donation_poster_3: null,
         donation_poster_4: null,
         donation_poster_5: null,
-        slider_1: null, 
-        slider_2: null, 
-        slider_3: null 
+        slider_1: null,
+        slider_1_title: settings?.slider_1_title || '',
+        slider_2: null,
+        slider_2_title: settings?.slider_2_title || '',
+        slider_3: null,
+        slider_3_title: settings?.slider_3_title || ''
     });
     const bidangForm = useForm({ id: '', name: '', description: '', image: null, order: 0, is_active: true });
-    const pengurusForm = useForm({ id: '', name: '', position: '', nim: '', prodi: '', photo: null, type: 'inti', order: 0, is_active: true });
+    const pengurusForm = useForm({ id: '', name: '', position: '', nim: '', prodi: '', photo: null, order: 0, is_active: true });
     const orgForm = useForm({ visi: visiMisi.visi || '', misi: visiMisi.misi || '', sejarah: visiMisi.sejarah || '' });
     const galeriForm = useForm({ id: '', year: new Date().getFullYear(), title: '', description: '', drive_link: '', photo_count: 0, thumbnail: null });
 
@@ -119,9 +121,12 @@ export default function Dashboard({
             if (settingsForm.data[key]) fd.append(key, settingsForm.data[key]);
         }
         
-        // Add sliders
+        // Add sliders with titles
         ['slider_1', 'slider_2', 'slider_3'].forEach(k => { 
-            if(settingsForm.data[k]) fd.append(k, settingsForm.data[k]); 
+            if(settingsForm.data[k]) fd.append(k, settingsForm.data[k]);
+            // Add slider titles
+            const titleKey = `${k}_title`;
+            fd.append(titleKey, settingsForm.data[titleKey] || '');
         });
         
         router.post('/admin/settings', fd, { 
@@ -146,22 +151,21 @@ export default function Dashboard({
 
     // 5. Pengurus Logic
     const openAddPengurus = () => { 
-        const type = pengurusForm.data.type; 
         pengurusForm.reset(); 
-        pengurusForm.setData('type', type); 
         setModalType('add_pengurus'); 
         setShowModal(true); 
     };
     const openEditPengurus = (item) => {
         pengurusForm.setData({ 
-            id: item.id, name: item.name, position: item.role || item.position, nim: item.nim || '', prodi: item.prodi || '', photo: null, type: item.type, order: item.order || 0, is_active: item.is_active ?? true 
+            id: item.id, name: item.name, position: item.role || item.position, nim: item.nim || '', prodi: item.prodi || '', photo: null, order: item.order || 0, is_active: item.is_active ?? true 
         });
         setModalType('edit_pengurus'); setShowModal(true);
     };
     const handleSubmitPengurus = (e) => {
         e.preventDefault();
         const fd = new FormData();
-        fd.append('name', pengurusForm.data.name); fd.append('role', pengurusForm.data.position); fd.append('type', pengurusForm.data.type);
+        fd.append('name', pengurusForm.data.name); 
+        fd.append('role', pengurusForm.data.position);
         if(pengurusForm.data.nim) fd.append('nim', pengurusForm.data.nim); 
         if(pengurusForm.data.prodi) fd.append('prodi', pengurusForm.data.prodi);
         if(pengurusForm.data.order) fd.append('order', pengurusForm.data.order);
@@ -558,42 +562,13 @@ export default function Dashboard({
                     ))}</div>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <div className="flex justify-between items-center mb-6"><h3 className="font-bold text-lg">Pengurus Inti</h3><button onClick={()=>{pengurusForm.setData('type','inti');openAddPengurus()}} className="bg-purple-600 text-white p-2 rounded-lg"><Plus size={16}/></button></div>
+                    <div className="flex justify-between items-center mb-6"><h3 className="font-bold text-lg">Pengurus</h3><button onClick={openAddPengurus} className="bg-purple-600 text-white p-2 rounded-lg"><Plus size={16}/></button></div>
                     <div className="space-y-4">{pengurusInti.map(p => (
                         <div key={p.id} className="flex justify-between items-center border p-3 rounded-lg">
                             <div className="flex items-center gap-3"><div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden">{p.photo && <img src={`/storage/${p.photo}`} className="w-full h-full object-cover"/>}</div><div><div className="font-bold">{p.name}</div><div className="text-xs text-slate-500">{p.position || p.role}</div></div></div>
                             <div className="flex gap-2"><button onClick={()=>openEditPengurus(p)} className="text-blue-600"><Edit size={14}/></button><button onClick={()=>handleDeletePengurus(p.id)} className="text-red-600"><Trash2 size={14}/></button></div>
                         </div>
                     ))}</div>
-                </div>
-            </div>
-
-            {/* FIX: Tambahkan section Pengurus Harian */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-bold text-lg">Pengurus Harian</h3>
-                    <button onClick={()=>{pengurusForm.setData('type','harian');openAddPengurus()}} className="bg-emerald-600 text-white p-2 rounded-lg">
-                        <Plus size={16}/>
-                    </button>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                    {pengurusHarian.map(p => (
-                        <div key={p.id} className="flex justify-between items-center border p-3 rounded-lg">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden">
-                                    {p.photo && <img src={`/storage/${p.photo}`} className="w-full h-full object-cover"/>}
-                                </div>
-                                <div>
-                                    <div className="font-bold">{p.name}</div>
-                                    <div className="text-xs text-slate-500">{p.position || p.role}</div>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button onClick={()=>openEditPengurus(p)} className="text-blue-600"><Edit size={14}/></button>
-                                <button onClick={()=>handleDeletePengurus(p.id)} className="text-red-600"><Trash2 size={14}/></button>
-                            </div>
-                        </div>
-                    ))}
                 </div>
             </div>
         </div>
@@ -652,8 +627,15 @@ export default function Dashboard({
                             <input 
                                 type="file" 
                                 onChange={e=>settingsForm.setData('slider_1', e.target.files[0])} 
-                                className="w-full border rounded-lg p-2 text-sm"
+                                className="w-full border rounded-lg p-2 text-sm mb-2"
                                 accept="image/*"
+                            />
+                            <input 
+                                type="text" 
+                                placeholder="Title Slider 1"
+                                value={settingsForm.data.slider_1_title}
+                                onChange={e=>settingsForm.setData('slider_1_title', e.target.value)}
+                                className="w-full border rounded-lg p-2 text-sm"
                             />
                             {settings.slider_1 && (
                                 <div className="mt-2">
@@ -662,6 +644,7 @@ export default function Dashboard({
                                         className="w-full h-40 object-cover rounded border" 
                                         alt="Slider 1" 
                                     />
+                                    <p className="text-xs text-slate-600 mt-1 font-medium">{settings.slider_1_title || 'Belum ada title'}</p>
                                 </div>
                             )}
                         </div>
@@ -672,8 +655,15 @@ export default function Dashboard({
                             <input 
                                 type="file" 
                                 onChange={e=>settingsForm.setData('slider_2', e.target.files[0])} 
-                                className="w-full border rounded-lg p-2 text-sm"
+                                className="w-full border rounded-lg p-2 text-sm mb-2"
                                 accept="image/*"
+                            />
+                            <input 
+                                type="text" 
+                                placeholder="Title Slider 2"
+                                value={settingsForm.data.slider_2_title}
+                                onChange={e=>settingsForm.setData('slider_2_title', e.target.value)}
+                                className="w-full border rounded-lg p-2 text-sm"
                             />
                             {settings.slider_2 && (
                                 <div className="mt-2">
@@ -682,6 +672,7 @@ export default function Dashboard({
                                         className="w-full h-40 object-cover rounded border" 
                                         alt="Slider 2" 
                                     />
+                                    <p className="text-xs text-slate-600 mt-1 font-medium">{settings.slider_2_title || 'Belum ada title'}</p>
                                 </div>
                             )}
                         </div>
@@ -692,8 +683,15 @@ export default function Dashboard({
                             <input 
                                 type="file" 
                                 onChange={e=>settingsForm.setData('slider_3', e.target.files[0])} 
-                                className="w-full border rounded-lg p-2 text-sm"
+                                className="w-full border rounded-lg p-2 text-sm mb-2"
                                 accept="image/*"
+                            />
+                            <input 
+                                type="text" 
+                                placeholder="Title Slider 3"
+                                value={settingsForm.data.slider_3_title}
+                                onChange={e=>settingsForm.setData('slider_3_title', e.target.value)}
+                                className="w-full border rounded-lg p-2 text-sm"
                             />
                             {settings.slider_3 && (
                                 <div className="mt-2">
@@ -702,6 +700,7 @@ export default function Dashboard({
                                         className="w-full h-40 object-cover rounded border" 
                                         alt="Slider 3" 
                                     />
+                                    <p className="text-xs text-slate-600 mt-1 font-medium">{settings.slider_3_title || 'Belum ada title'}</p>
                                 </div>
                             )}
                         </div>

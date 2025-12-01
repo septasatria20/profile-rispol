@@ -63,8 +63,7 @@ class AdminController extends Controller
         $galleries = Galeri::orderBy('year', 'desc')->get();
 
         $bidangs = Bidang::where('is_active', true)->orderBy('order')->get();
-        $pengurusInti = Pengurus::where('type', 'inti')->where('is_active', true)->orderBy('order')->get();
-        $pengurusHarian = Pengurus::where('type', 'harian')->where('is_active', true)->orderBy('order')->get();
+        $pengurusInti = Pengurus::where('is_active', true)->orderBy('order')->get();
         
         // Get organization info
         $visiMisi = [
@@ -83,15 +82,17 @@ class AdminController extends Controller
             'galleries' => $galleries,
             'bidangs' => $bidangs,
             'pengurusInti' => $pengurusInti,
-            'pengurusHarian' => $pengurusHarian,
             'visiMisi' => $visiMisi,
             'settings' => array_merge([
                 'hero_image' => $heroImage,
                 'youtube_link' => $youtubeLink,
                 'qris_image' => $qrisImage,
                 'slider_1' => Setting::get('slider_1'),
+                'slider_1_title' => Setting::get('slider_1_title'),
                 'slider_2' => Setting::get('slider_2'),
+                'slider_2_title' => Setting::get('slider_2_title'),
                 'slider_3' => Setting::get('slider_3'),
+                'slider_3_title' => Setting::get('slider_3_title'),
             ], $donationPosters),
         ]);
     }
@@ -380,17 +381,24 @@ class AdminController extends Controller
             'nim' => 'nullable|string|max:255',
             'prodi' => 'nullable|string|max:255',
             'image' => 'nullable|image|max:2048',
-            'type' => 'required|in:inti,harian',
             'order' => 'nullable|integer',
         ]);
 
+        // Map validated data to correct database columns
+        $data = [
+            'name' => $validated['name'],
+            'position' => $validated['role'], // Map 'role' from form to 'position' in database
+            'nim' => $validated['nim'] ?? null,
+            'prodi' => $validated['prodi'] ?? null,
+            'order' => $validated['order'] ?? 0,
+        ];
+
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('pengurus', 'public');
-            $validated['photo'] = $path;
-            unset($validated['image']);
+            $data['photo'] = $path;
         }
 
-        Pengurus::create($validated);
+        Pengurus::create($data);
 
         return redirect()->back()->with('success', 'Pengurus berhasil ditambahkan');
     }
@@ -405,21 +413,34 @@ class AdminController extends Controller
             'nim' => 'nullable|string|max:255',
             'prodi' => 'nullable|string|max:255',
             'image' => 'nullable|image|max:2048',
-            'type' => 'required|in:inti,harian',
             'order' => 'nullable|integer',
-            'is_active' => 'required|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
+        // Map validated data to correct database columns
+        $data = [
+            'name' => $validated['name'],
+            'position' => $validated['role'], // Map 'role' from form to 'position' in database
+            'nim' => $validated['nim'] ?? null,
+            'prodi' => $validated['prodi'] ?? null,
+            'order' => $validated['order'] ?? 0,
+        ];
+
+        if (isset($validated['is_active'])) {
+            $data['is_active'] = $validated['is_active'];
+        }
+
+        // Handle image upload
         if ($request->hasFile('image')) {
             if ($pengurus->photo) {
                 Storage::disk('public')->delete($pengurus->photo);
             }
             $path = $request->file('image')->store('pengurus', 'public');
-            $validated['photo'] = $path;
-            unset($validated['image']);
+            $data['photo'] = $path;
         }
 
-        $pengurus->update($validated);
+        // Update with mapped data
+        $pengurus->update($data);
 
         return redirect()->back()->with('success', 'Pengurus berhasil diperbarui');
     }

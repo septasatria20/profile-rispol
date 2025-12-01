@@ -13,7 +13,7 @@ class Pengurus extends Model
 
     protected $fillable = [
         'name',
-        'position',
+        'position',    // Database column name is 'position'
         'nim',
         'prodi',
         'photo',
@@ -23,6 +23,12 @@ class Pengurus extends Model
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
+
+    // Accessor to map 'position' to 'role' for frontend consistency
+    public function getRoleAttribute()
+    {
+        return $this->position;
+    }
 }

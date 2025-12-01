@@ -4,7 +4,7 @@ import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import { ChevronRight, Play, CheckCircle, ArrowRight, ChevronLeft } from 'lucide-react';
 
-export default function Home({ bidangs, prokers, news, heroImage, sliderImages = [], youtubeLink }) {
+export default function Home({ bidangs, prokers, news, heroImage, sliderImages = [], sliderTitles = [], youtubeLink }) {
     // Slider State - Use dynamic slider images from backend
     const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -13,7 +13,7 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
         ? sliderImages.map((img, idx) => ({ 
             id: idx + 1, 
             image: `/storage/${img}`, 
-            title: `Dokumentasi Kegiatan ${idx + 1}` 
+            title: sliderTitles[idx] || `Dokumentasi Kegiatan ${idx + 1}` 
         }))
         : [
             { id: 1, image: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=1200&auto=format&fit=crop', title: 'Foto Bersama Pengurus 2024' },
@@ -56,7 +56,7 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                 <div className="h-2 w-32 bg-blue-600 rounded-full"></div>
                             </div>
                             <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
-                                Kerohanian Islam Politeknik Negeri Malang hadir sebagai wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Politeknik Negeri Malang.
+                                Kerohanian Islam Politeknik hadir sebagai wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Politeknik Negeri Malang.
                             </p>
                             <div className="flex gap-4">
                                 <Link href="/program-kerja" className="group bg-slate-900 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-blue-700 transition-all flex items-center gap-3">
