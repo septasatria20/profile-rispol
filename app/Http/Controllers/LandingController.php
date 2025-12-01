@@ -23,6 +23,13 @@ class LandingController extends Controller
             Setting::get('slider_2'),
             Setting::get('slider_3'),
         ]);
+        
+        // Get slider titles
+        $sliderTitles = [
+            Setting::get('slider_1_title', 'Dokumentasi Kegiatan 1'),
+            Setting::get('slider_2_title', 'Dokumentasi Kegiatan 2'),
+            Setting::get('slider_3_title', 'Dokumentasi Kegiatan 3'),
+        ];
 
         return Inertia::render('Home', [
             // Mengirim data ke props React
@@ -34,7 +41,8 @@ class LandingController extends Controller
             'galeris' => Galeri::orderBy('year', 'desc')->get(),
             'heroImage' => Setting::get('hero_image'),
             'youtubeLink' => Setting::get('youtube_link'),
-            'sliderImages' => $sliderImages,
+            'sliderImages' => array_values($sliderImages), // Re-index array
+            'sliderTitles' => $sliderTitles, // Add this line
             'visiMisi' => [
                 'visi' => Setting::get('visi', ''),
                 'misi' => Setting::get('misi', ''),

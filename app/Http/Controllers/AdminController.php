@@ -229,8 +229,11 @@ class AdminController extends Controller
             'donation_poster_4' => 'nullable|image|max:3072',
             'donation_poster_5' => 'nullable|image|max:3072',
             'slider_1' => 'nullable|image|max:2048',
+            'slider_1_title' => 'nullable|string|max:255',
             'slider_2' => 'nullable|image|max:2048',
+            'slider_2_title' => 'nullable|string|max:255',
             'slider_3' => 'nullable|image|max:2048',
+            'slider_3_title' => 'nullable|string|max:255',
         ]);
 
         // Handle Hero Image
@@ -266,22 +269,30 @@ class AdminController extends Controller
             }
         }
 
-        // Handle Slider Images (3 images)
+        // Handle Slider Images (3 images) with titles
         for ($i = 1; $i <= 3; $i++) {
-            $key = "slider_{$i}";
-            if ($request->hasFile($key)) {
-                $oldImage = Setting::get($key);
+            $imageKey = "slider_{$i}";
+            $titleKey = "slider_{$i}_title";
+            
+            // Save slider image if uploaded
+            if ($request->hasFile($imageKey)) {
+                $oldImage = Setting::get($imageKey);
                 if ($oldImage) {
                     Storage::disk('public')->delete($oldImage);
                 }
-                $path = $request->file($key)->store('settings/sliders', 'public');
-                Setting::set($key, $path);
+                $path = $request->file($imageKey)->store('settings/sliders', 'public');
+                Setting::set($imageKey, $path);
+            }
+            
+            // Save slider title (always save, even if empty)
+            if ($request->has($titleKey)) {
+                Setting::set($titleKey, $request->input($titleKey) ?? '');
             }
         }
 
         // Handle YouTube Link
-        if ($request->youtube_link) {
-            Setting::set('youtube_link', $request->youtube_link);
+        if ($request->has('youtube_link')) {
+            Setting::set('youtube_link', $request->youtube_link ?? '');
         }
 
         return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui');
