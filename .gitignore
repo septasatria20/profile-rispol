@@ -16,3 +16,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# IMPORTANT: /public/build must be committed for production
+# Do NOT add /public/build to gitignore
