@@ -1,93 +1,124 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
-import { User, Lock, ArrowRight, X } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { Lock, User, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const { data, setData, post, processing, errors } = useForm({
+        username: '',
+        password: '',
+        remember: false,
+    });
 
-    const handleLogin = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        setError('');
-
-        // Simulasi login delay
-        setTimeout(() => {
-            if (email === 'admin' && password === 'admin') {
-                router.visit('/admin/dashboard');
-            } else {
-                setError('Username atau password salah! (Coba: admin / admin)');
-                setIsLoading(false);
-            }
-        }, 1000);
+        post('/admin/login');
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-900 animate-fade-in relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
             <Head title="Admin Login" />
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-600 rounded-full blur-[120px] opacity-20"></div>
-                <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-emerald-600 rounded-full blur-[120px] opacity-20"></div>
+            
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                    backgroundSize: '40px 40px'
+                }}></div>
             </div>
 
-            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-md relative z-10 mx-4">
+            <div className="w-full max-w-md relative z-10">
+                {/* Logo & Title */}
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-lg mx-auto mb-4 rotate-3">R</div>
-                    <h2 className="text-2xl font-bold text-slate-800">Admin Portal</h2>
-                    <p className="text-slate-500 text-sm mt-1">Silahkan masuk untuk mengelola website</p>
+                    <div className="mx-auto w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-2xl">
+                        <img src="/logo.png" alt="RISPOL" className="w-16 h-16 object-contain" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-2">Admin RISPOL</h1>
+                    <p className="text-slate-400">Kerohanian Islam Politeknik Negeri Malang</p>
                 </div>
 
-                {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg flex items-center gap-2">
-                        <X size={16} /> {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleLogin} className="space-y-5">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Username</label>
-                        <div className="relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                <User size={20} />
+                {/* Login Card */}
+                <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Username */}
+                        <div>
+                            <label className="block text-sm font-bold text-white mb-2">
+                                Username
+                            </label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="text"
+                                    value={data.username}
+                                    onChange={e => setData('username', e.target.value)}
+                                    className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
+                                    placeholder="Masukkan username"
+                                    autoFocus
+                                />
                             </div>
-                            <input 
-                                type="text" 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
-                                placeholder="Masukkan username"
-                                required
-                            />
+                            {errors.username && (
+                                <p className="mt-2 text-sm text-red-400">{errors.username}</p>
+                            )}
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-                        <div className="relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                <Lock size={20} />
-                            </div>
-                            <input 
-                                type="password" 
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
-                                placeholder="Masukkan password"
-                                required
-                            />
-                        </div>
-                    </div>
 
-                    <button 
-                        type="submit" 
-                        disabled={isLoading}
-                        className={`w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                        {isLoading ? 'Memproses...' : 'Masuk Dashboard'} {isLoading ? '' : <ArrowRight size={20} />}
-                    </button>
-                </form>
+                        {/* Password */}
+                        <div>
+                            <label className="block text-sm font-bold text-white mb-2">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={data.password}
+                                    onChange={e => setData('password', e.target.value)}
+                                    className="w-full pl-11 pr-11 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
+                                    placeholder="Masukkan password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
+                            {errors.password && (
+                                <p className="mt-2 text-sm text-red-400">{errors.password}</p>
+                            )}
+                        </div>
+
+                        {/* Remember Me */}
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="remember"
+                                checked={data.remember}
+                                onChange={e => setData('remember', e.target.checked)}
+                                className="w-4 h-4 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-blue-400"
+                            />
+                            <label htmlFor="remember" className="ml-2 text-sm text-slate-300">
+                                Ingat saya
+                            </label>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/50"
+                        >
+                            {processing ? 'Memproses...' : 'Masuk'}
+                        </button>
+                    </form>
+                </div>
+
+                {/* Info */}
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-slate-400">
+                        © 2024 RISPOL - Politeknik Negeri Malang
+                    </p>
+                </div>
             </div>
         </div>
     );

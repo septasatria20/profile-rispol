@@ -481,9 +481,9 @@ export default function Dashboard({
                 </form>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
-                {/* Donatur List */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="grid lg:grid-cols-3 gap-8">
+                {/* Donatur List - Lebih lebar (2 kolom dari 3) */}
+                <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div className="p-6 border-b border-slate-100">
                         <h3 className="font-bold text-lg text-slate-800">Daftar Donatur Masuk</h3>
                     </div>
@@ -566,15 +566,37 @@ export default function Dashboard({
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <div className="flex justify-between mb-4"><h3 className="font-bold text-lg">Rekening Bank</h3><button onClick={openAddBank} className="text-blue-600"><Plus size={20}/></button></div>
+                {/* Rekening Bank - Lebih kecil (1 kolom dari 3) */}
+                <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                    <div className="flex justify-between mb-4">
+                        <h3 className="font-bold text-lg">Rekening Bank</h3>
+                        <button onClick={openAddBank} className="text-blue-600 hover:text-blue-700">
+                            <Plus size={20}/>
+                        </button>
+                    </div>
                     <div className="space-y-3">
                         {bankAccounts.map(b => (
-                            <div key={b.id} className="flex justify-between items-center border p-3 rounded-lg">
-                                <div><div className="font-bold">{b.bank_name}</div><div className="text-sm">{b.account_number}</div></div>
-                                <div className="flex gap-2"><button onClick={()=>openEditBank(b)} className="text-blue-600"><Edit size={16}/></button><button onClick={()=>handleDeleteBank(b.id)} className="text-red-600"><Trash2 size={16}/></button></div>
+                            <div key={b.id} className="flex flex-col border p-3 rounded-lg hover:border-blue-200 transition-all">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="font-bold text-slate-900">{b.bank_name}</div>
+                                    <div className="flex gap-2">
+                                        <button onClick={()=>openEditBank(b)} className="text-blue-600 hover:text-blue-700">
+                                            <Edit size={14}/>
+                                        </button>
+                                        <button onClick={()=>handleDeleteBank(b.id)} className="text-red-600 hover:text-red-700">
+                                            <Trash2 size={14}/>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="text-sm text-slate-600">{b.account_number}</div>
+                                <div className="text-xs text-slate-500 mt-1">{b.account_holder}</div>
                             </div>
                         ))}
+                        {bankAccounts.length === 0 && (
+                            <div className="text-center text-slate-400 py-4 text-sm">
+                                Belum ada rekening bank
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

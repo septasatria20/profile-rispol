@@ -6,6 +6,7 @@ use App\Http\Controllers\DonasiController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\GaleriController;
+use App\Http\Controllers\Auth\AdminLoginController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,7 +34,14 @@ Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store')
 
 // --- ADMIN ROUTES ---
 Route::prefix('admin')->group(function () {
-    Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
+    // Admin Login Routes
+    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/login', [AdminLoginController::class, 'login']);
+    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+});
+
+// Admin Dashboard Routes (Protected)
+Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
     // Settings - Menggunakan AdminController
