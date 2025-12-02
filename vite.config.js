@@ -10,8 +10,4 @@ export default defineConfig({
         }),
         react(),
     ],
-    build: {
-        manifest: true,
-        outDir: 'public/build',  // Build output untuk development
-    },
 });
