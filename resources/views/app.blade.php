@@ -11,20 +11,15 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
-        <!-- FIX: Update Favicon -->
-        <link rel="icon" type="image/x-icon" href="/favicon.ico">
-        <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
-        <link rel="apple-touch-icon" href="/logo.png">
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
 
         <!-- Scripts -->
         @routes
         @viteReactRefresh
-        @if (app()->environment('local'))
-            @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
-        @else
-            <link rel="stylesheet" href="{{ asset('build/assets/app-XXXXX.css') }}">
-            <script type="module" src="{{ asset('build/assets/app-XXXXX.js') }}"></script>
-        @endif
+        @vite(['resources/js/app.jsx'])
         @inertiaHead
 
         <style>
@@ -49,8 +44,13 @@
                 from { opacity: 0; transform: translateX(50px); }
                 to { opacity: 1; transform: translateX(0); }
             }
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(30px) scale(0.95); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
             .animate-slide-right { animation: slideRight 0.8s ease-out forwards; }
             .animate-slide-left { animation: slideLeft 0.8s ease-out forwards; }
+            .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
             
             @keyframes blob {
                 0% { transform: translate(0px, 0px) scale(1); }
