@@ -84,7 +84,8 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                             <div>
                                 <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight mb-4">
                                     Satu Satunya <br />
-                                    Organisasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 font-serif italic">Islam</span> <br />
+                                    Organisasi <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 font-serif italic">Islam</span> <br />
                                     di Polinema.
                                 </h1>
                                 <div className="h-2 w-32 bg-blue-600 rounded-full"></div>
