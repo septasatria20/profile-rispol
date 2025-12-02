@@ -19,7 +19,7 @@
         <!-- Scripts -->
         @routes
         @viteReactRefresh
-        @vite(['resources/js/app.jsx'])
+        @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead
 
         <style>
@@ -65,6 +65,10 @@
             @keyframes fadeIn { 
                 from { opacity: 0; transform: translateY(10px); } 
                 to { opacity: 1; transform: translateY(0); } 
+            }
+            
+            .group:hover .flip-card-inner {
+                transform: rotateY(180deg);
             }
         </style>
     </head>
