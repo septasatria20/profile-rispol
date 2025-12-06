@@ -1,26 +1,40 @@
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
+        # Mencegah orang melihat daftar isi folder (Directory Listing)
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
 
-    # Blokir akses ke file sensitif
-    <FilesMatch "^\.env|composer\.json|composer\.lock|package\.json|artisan">
+    # =========================================================
+    # AREA KEAMANAN (WAJIB ADA UNTUK DEPLOY DI ROOT)
+    # =========================================================
+    <Files .env>
+        Order allow,deny
+        Deny from all
+    </Files>
+
+    <FilesMatch "^(composer\.json|composer\.lock|package\.json|package-lock\.json|artisan|phpunit\.xml|vite\.config\.js|server\.php)$">
         Order allow,deny
         Deny from all
     </FilesMatch>
+    
+    RewriteRule ^\.git - [F,L]
+    
+    # =========================================================
+    # KONFIGURASI LARAVEL
+    # =========================================================
 
-    # Handle Authorization Header
+    # Handle Authorization Header (Penting untuk Login/API)
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Redirect Trailing Slashes
+    # Redirect Trailing Slashes (Hapus garis miring di akhir url)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Handle Front Controller
+    # Handle Front Controller (Arahkan semua ke index.php)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]

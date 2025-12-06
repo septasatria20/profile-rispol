@@ -67,7 +67,25 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
 
     return (
         <div className="min-h-screen font-sans text-slate-800 bg-slate-50 selection:bg-blue-200 animate-fade-in overflow-hidden">
-            <Head title="Beranda" />
+            <Head>
+                <title>Beranda - RISPOL | Kerohanian Islam Politeknik Negeri Malang</title>
+                <meta name="description" content="Kerohanian Islam Politeknik Negeri Malang - Wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Polinema." />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={window.location.href} />
+                <meta property="og:title" content="RISPOL - Kerohanian Islam Politeknik Negeri Malang" />
+                <meta property="og:description" content="Satu-satunya organisasi Islam di Polinema. Bersama menebar manfaat di kampus." />
+                <meta property="og:image" content={heroImage ? `${window.location.origin}/storage/${heroImage}` : `${window.location.origin}/images/rispol-og.jpg`} />
+
+                {/* Twitter */}
+                <meta property="twitter:card" content="summary_large_image" />
+                <meta property="twitter:url" content={window.location.href} />
+                <meta property="twitter:title" content="RISPOL - Kerohanian Islam Politeknik Negeri Malang" />
+                <meta property="twitter:description" content="Satu-satunya organisasi Islam di Polinema. Bersama menebar manfaat di kampus." />
+                <meta property="twitter:image" content={heroImage ? `${window.location.origin}/storage/${heroImage}` : `${window.location.origin}/images/rispol-og.jpg`} />
+            </Head>
+
             <Navbar />
 
             <main>
