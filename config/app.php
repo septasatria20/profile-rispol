@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Kerohanian Islam Politeknik Negeri Malang'),
+    'name' => env('APP_NAME', 'Kerohanian Islam Politeknik Politeknik Negeri Malang'),
 
     /*
     |--------------------------------------------------------------------------
