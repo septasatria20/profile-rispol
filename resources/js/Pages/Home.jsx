@@ -90,38 +90,38 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
 
             <main>
                 {/* 1. Hero Section */}
-                <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-slate-50">
+                <section className="relative min-h-screen flex items-center pt-16 md:pt-20 overflow-hidden bg-slate-50">
                     {/* Background Blobs Animation */}
                     <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4 animate-blob"></div>
-                        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-100/50 rounded-full blur-3xl opacity-50 translate-y-1/3 -translate-x-1/4 animate-blob animation-delay-2000"></div>
+                        <div className="absolute top-0 right-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-blue-100/50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4 animate-blob"></div>
+                        <div className="absolute bottom-0 left-0 w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-emerald-100/50 rounded-full blur-3xl opacity-50 translate-y-1/3 -translate-x-1/4 animate-blob animation-delay-2000"></div>
                     </div>
 
-                    <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center relative z-10">
-                        <div className="space-y-8 animate-slide-right">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-8 md:gap-16 items-center relative z-10 w-full">
+                        <div className="space-y-6 md:space-y-8 animate-slide-right">
                             <div>
-                                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight mb-4">
+                                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight mb-4">
                                     Satu Satunya <br />
                                     Organisasi <br />
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 font-serif italic">Islam</span> <br />
                                     di Polinema.
                                 </h1>
-                                <div className="h-2 w-32 bg-blue-600 rounded-full"></div>
+                                <div className="h-1.5 md:h-2 w-24 md:w-32 bg-blue-600 rounded-full"></div>
                             </div>
-                            <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
+                            <p className="text-base md:text-lg text-slate-600 leading-relaxed max-w-lg">
                                 Kerohanian Islam Politeknik hadir sebagai wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Politeknik Negeri Malang.
                             </p>
-                            <div className="flex gap-4">
-                                <Link href="/program-kerja" className="group bg-slate-900 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-blue-700 transition-all flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                                <Link href="/program-kerja" className="group bg-slate-900 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-3 text-sm md:text-base">
                                     Lihat Program <div className="bg-white/20 rounded-full p-1 group-hover:bg-white/30"><ChevronRight size={16} /></div>
                                 </Link>
-                                <Link href="/tentang-kami" className="px-8 py-4 rounded-full font-bold text-slate-700 border-2 border-slate-200 hover:border-blue-600 hover:text-blue-600 transition-all">
+                                <Link href="/tentang-kami" className="px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-slate-700 border-2 border-slate-200 hover:border-blue-600 hover:text-blue-600 transition-all text-center text-sm md:text-base">
                                     Tentang Kami
                                 </Link>
                             </div>
                         </div>
                         
-                        {/* Image Hero with Frame - Dynamic from Backend */}
+                        {/* Image Hero - Hide on mobile */}
                         <div className="relative hidden md:block animate-slide-left">
                             <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-all duration-700 border-8 border-white">
                                 <img 
@@ -143,10 +143,10 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                     </div>
                 </section>
 
-                {/* 2. Video Profile Section - Dynamic YouTube Link */}
-                <section className="py-20 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-100 aspect-video bg-black">
+                {/* 2. Video Profile Section */}
+                <section className="py-12 md:py-20 bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                        <div className="relative rounded-xl md:rounded-2xl overflow-hidden shadow-2xl border-2 md:border-4 border-slate-100 aspect-video bg-black">
                             <iframe 
                                 className="w-full h-full"
                                 src={youtubeLink || "https://www.youtube.com/embed/PqasWO3d-jc?si=4jp2XqGF9bvKORhs"} 
@@ -156,22 +156,22 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                 allowFullScreen
                             ></iframe>
                         </div>
-                        <div className="space-y-6">
-                            <h2 className="text-4xl font-serif font-bold text-slate-900">Wajah Dakwah Kampus</h2>
-                            <p className="text-slate-600 text-lg leading-relaxed">
-                                Mengenal lebih dalam tentang semangat, visi, dan aktivitas Kerohanian Islam Politeknik Negeri Malang melalui lensa visual. Temukan inspirasi di setiap kegiatan kami.
+                        <div className="space-y-4 md:space-y-6">
+                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-slate-900">Wajah Dakwah Kampus</h2>
+                            <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+                                Mengenal lebih dalam tentang semangat, visi, dan aktivitas Kerohanian Islam Politeknik Negeri Malang melalui lensa visual.
                             </p>
-                            <a href="https://www.youtube.com/watch?v=PqasWO3d-jc" target="_blank" rel="noreferrer" className="text-blue-600 font-bold flex items-center gap-2 hover:gap-4 transition-all">
+                            <a href="https://www.youtube.com/watch?v=PqasWO3d-jc" target="_blank" rel="noreferrer" className="text-blue-600 font-bold flex items-center gap-2 hover:gap-4 transition-all text-sm md:text-base">
                                 Tonton di YouTube <ArrowRight size={20} />
                             </a>
                         </div>
                     </div>
                 </section>
 
-                {/* 2.5 New Slider Section - Dynamic from Backend */}
-                <section className="py-16 bg-slate-50">
-                    <div className="max-w-7xl mx-auto px-4">
-                        <div className="relative w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl group">
+                {/* 2.5 Slider Section */}
+                <section className="py-10 md:py-16 bg-slate-50">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl group">
                             {GALLERY_SLIDER.map((slide, index) => (
                                 <div 
                                     key={slide.id}
@@ -208,16 +208,16 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                     </div>
                 </section>
 
-                {/* 3. Bidang Section (Flip Cards) */}
-                <section id="bidang" className="py-24 bg-white relative">
-                    <div className="max-w-7xl mx-auto px-4">
-                        <div className="text-center mb-16">
-                            <span className="text-blue-600 font-bold tracking-widest text-sm uppercase">Struktur Organisasi</span>
-                            <h2 className="text-4xl font-bold text-slate-900 mt-2 mb-4">Kenali Bidang RISPOL</h2>
-                            <p className="text-slate-600 max-w-2xl mx-auto">Arahkan kursor pada kartu untuk melihat deskripsi bidang.</p>
+                {/* 3. Bidang Section */}
+                <section id="bidang" className="py-16 md:py-24 bg-white relative">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-12 md:mb-16">
+                            <span className="text-blue-600 font-bold tracking-widest text-xs md:text-sm uppercase">Struktur Organisasi</span>
+                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 mt-2 mb-3 md:mb-4">Kenali Bidang RISPOL</h2>
+                            <p className="text-slate-600 max-w-2xl mx-auto text-sm md:text-base px-4">Arahkan kursor pada kartu untuk melihat deskripsi bidang.</p>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                             {bidangs && bidangs.map((bidang) => (
                                 <div key={bidang.id} className="group h-96 perspective w-full cursor-pointer">
                                     <div className="relative w-full h-full duration-700 preserve-3d flip-card-inner">
@@ -250,17 +250,19 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                 </section>
 
                 {/* 4. News & Updates */}
-                <section className="py-20 bg-white">
-                    <div className="max-w-7xl mx-auto px-4">
-                        <div className="flex justify-between items-end mb-10">
+                <section className="py-12 md:py-20 bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-10 gap-4">
                             <div>
-                                <h2 className="text-3xl font-bold text-slate-900">Informasi & Berita</h2>
-                                <p className="text-slate-500 mt-2">Update terkini kegiatan RISPOL</p>
+                                <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Informasi & Berita</h2>
+                                <p className="text-slate-500 mt-2 text-sm md:text-base">Update terkini kegiatan RISPOL</p>
                             </div>
-                            <button className="hidden md:flex items-center gap-2 text-blue-600 font-semibold hover:gap-3 transition-all">Lihat Semua <ArrowRight size={16} /></button>
+                            <button className="hidden md:flex items-center gap-2 text-blue-600 font-semibold hover:gap-3 transition-all text-sm">
+                                Lihat Semua <ArrowRight size={16} />
+                            </button>
                         </div>
                         
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                             {news && news.map((item) => (
                                 <div 
                                     key={item.id} 
@@ -288,16 +290,16 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                 </section>
 
                 {/* Section Website Mentoring */}
-                <section className="py-20 lg:py-32 bg-gradient-to-br from-emerald-50 via-white to-blue-50 relative overflow-hidden">
+                <section className="py-12 md:py-20 lg:py-32 bg-gradient-to-br from-emerald-50 via-white to-blue-50 relative overflow-hidden">
                     {/* Decorative Elements */}
                     <div className="absolute inset-0 opacity-10">
                         <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-500 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
                     </div>
 
-                    <div className="container mx-auto px-4 lg:px-8 relative z-10">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="max-w-5xl mx-auto">
-                            <div className="grid lg:grid-cols-2 gap-12 items-center">
+                            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                                 {/* Image Side */}
                                 <div className="relative group">
                                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
