@@ -109,7 +109,7 @@ export default function Proker({ prokers, filters, bidangs }) {
                                     <div key={proker.id} className="group bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full">
                                         <div className="relative h-56 overflow-hidden">
                                             <img
-                                                src={proker.image ? `/storage/${proker.image}` : 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=600&auto=format&fit=crop'}
+                                                src={proker.image ? `/storage/${proker.image}` : '/logo.png'}
                                                 alt={proker.title}
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
@@ -167,7 +167,7 @@ export default function Proker({ prokers, filters, bidangs }) {
                         {/* Modal Header with Image */}
                         <div className="relative h-72 overflow-hidden rounded-t-3xl">
                             <img
-                                src={selectedProker.image ? `/storage/${selectedProker.image}` : 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200&auto=format&fit=crop'}
+                                src={selectedProker.image ? `/storage/${selectedProker.image}` : '/logo.png'}
                                 alt={selectedProker.title}
                                 className="w-full h-full object-cover"
                             />

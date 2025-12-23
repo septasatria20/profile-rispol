@@ -64,7 +64,7 @@ export default function Footer() {
                                 <div className="flex items-start gap-3">
                                     <MapPin className="shrink-0 text-blue-500 mt-1" size={18} />
                                     <p className="text-sm md:text-base">
-                                        Gedung AS Polinemag<br />
+                                        Gedung AS Polinema<br />
                                         Kesekretariatan Rispol, Ruang: 2.01
                                     </p>
                                 </div>

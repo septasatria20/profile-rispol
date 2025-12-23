@@ -27,7 +27,7 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
             {/* Background Grid Pattern */}
             <div className="absolute inset-0 grid grid-cols-4 md:grid-cols-8 gap-4 opacity-5 blur-sm scale-110 pointer-events-none">
                 {members.slice(0, 16).map((m, i) => (
-                    <div key={i} className="w-full aspect-square bg-cover bg-center" style={{ backgroundImage: `url(${m.photo ? `/storage/${m.photo}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=300'})` }}></div>
+                    <div key={i} className="w-full aspect-square bg-cover bg-center" style={{ backgroundImage: `url(${m.photo ? `/storage/${m.photo}` : '/logo.png'})` }}></div>
                 ))}
             </div>
 
@@ -37,30 +37,32 @@ const TeamCarousel = ({ title, subtitle, members, bgColor, textColor, cardBorder
                     <p className={`font-sans text-2xl font-semibold mt-2 ${textColor === 'text-white' ? 'text-slate-400' : 'text-blue-600'}`}>{subtitle}</p>
                 </div>
 
-                <div className="relative overflow-hidden">
-                    <div 
-                        className="flex transition-transform duration-700 ease-in-out"
-                        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-                    >
-                        {Array.from({ length: totalSlides }).map((_, slideIndex) => (
-                            <div key={slideIndex} className="w-full flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 px-4">
-                                {members.slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide).map((p, i) => (
-                                    <div key={i} className="flex flex-col items-center text-center group">
-                                        <div className={`relative w-64 aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border-4 ${cardBorderColor} transition-transform duration-500 group-hover:-translate-y-2`}>
-                                            <img 
-                                                src={p.photo ? `/storage/${p.photo}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=300'} 
-                                                alt={p.name} 
-                                                className="w-full h-full object-cover" 
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                <div className="relative">
+                    <div className="overflow-hidden">
+                        <div 
+                            className="flex transition-transform duration-700 ease-in-out"
+                            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                        >
+                            {Array.from({ length: totalSlides }).map((_, slideIndex) => (
+                                <div key={slideIndex} className="w-full flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 px-4">
+                                    {members.slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide).map((p, i) => (
+                                        <div key={i} className="flex flex-col items-center text-center group">
+                                            <div className={`relative w-64 aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border-4 ${cardBorderColor} transition-transform duration-500 group-hover:-translate-y-2`}>
+                                                <img 
+                                                    src={p.photo ? `/storage/${p.photo}` : '/logo.png'} 
+                                                    alt={p.name} 
+                                                    className="w-full h-full object-cover" 
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                                            </div>
+                                            <h3 className={`font-serif text-2xl font-bold mt-6 ${textColor === 'text-white' ? 'text-white' : 'text-slate-900'}`}>{p.name}</h3>
+                                            <p className={`${textColor === 'text-white' ? 'text-slate-300' : 'text-slate-600'} text-lg mt-1`}>{p.position}</p>
+                                            {p.nim && <p className={`text-sm ${textColor === 'text-white' ? 'text-slate-400' : 'text-slate-500'}`}>{p.nim} - {p.prodi}</p>}
                                         </div>
-                                        <h3 className={`font-serif text-2xl font-bold mt-6 ${textColor === 'text-white' ? 'text-white' : 'text-slate-900'}`}>{p.name}</h3>
-                                        <p className={`${textColor === 'text-white' ? 'text-slate-300' : 'text-slate-600'} text-lg mt-1`}>{p.position}</p>
-                                        {p.nim && <p className={`text-sm ${textColor === 'text-white' ? 'text-slate-400' : 'text-slate-500'}`}>{p.nim} - {p.prodi}</p>}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {totalSlides > 1 && (
@@ -162,7 +164,7 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
                 {/* Pengurus Inti Slider */}
                 <TeamCarousel 
                     title="Our Team" 
-                    subtitle="Pengurus Inti" 
+                    subtitle="Steering Committee" 
                     members={pengurusInti} 
                     bgColor="bg-slate-900" 
                     textColor="text-white" 
@@ -196,7 +198,7 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
                                 >
                                     <div className="relative w-full h-full bg-white p-8 flex items-center justify-center">
                                         <img 
-                                            src={bidang.image ? `/storage/${bidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=600'} 
+                                            src={bidang.image ? `/storage/${bidang.image}` : '/logo.png'} 
                                             alt={bidang.name} 
                                             className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" 
                                         />
@@ -230,7 +232,7 @@ export default function TentangKami({ visiMisi = {}, bidangs = [], pengurusInti 
                     >
                         <div className="relative h-64 overflow-hidden rounded-t-3xl bg-slate-900 flex items-center justify-center p-8">
                             <img
-                                src={selectedBidang.image ? `/storage/${selectedBidang.image}` : 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=800'}
+                                src={selectedBidang.image ? `/storage/${selectedBidang.image}` : '/logo.png'}
                                 alt={selectedBidang.name}
                                 className="w-full h-full object-contain"
                             />

@@ -18,9 +18,9 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
             title: sliderTitles[idx] || `Dokumentasi Kegiatan ${idx + 1}` 
         }))
         : [
-            { id: 1, image: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=1200&auto=format&fit=crop', title: 'Foto Bersama Pengurus 2024' },
-            { id: 2, image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop', title: 'Kegiatan Mentoring Akbar' },
-            { id: 3, image: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1200&auto=format&fit=crop', title: 'Rapat Kerja Wilayah' },
+            { id: 1, image: '/logo.png', title: 'Foto Bersama Pengurus 2024' },
+            { id: 2, image: '/logo.png', title: 'Kegiatan Mentoring Akbar' },
+            { id: 3, image: '/logo.png', title: 'Rapat Kerja Wilayah' },
         ];
 
     useEffect(() => {
@@ -125,7 +125,7 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                         <div className="relative hidden md:block animate-slide-left">
                             <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-all duration-700 border-8 border-white">
                                 <img 
-                                    src={heroImage ? `/storage/${heroImage}` : "https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=1000&auto=format&fit=crop"} 
+                                    src={heroImage ? `/storage/${heroImage}` : "/logo.png"} 
                                     alt="Kegiatan Rispol" 
                                     className="w-full h-[500px] object-cover scale-105 hover:scale-100 transition-transform duration-1000"
                                 />
