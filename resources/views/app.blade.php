@@ -12,16 +12,33 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
         <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('android-chrome-192x192.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+        <link rel="shortcut icon" href="https://rohispolinema.com/favicon.ico" type="image/x-icon">
+        <link rel="icon" type="image/x-icon" href="https://rohispolinema.com/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="https://rohispolinema.com/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="https://rohispolinema.com/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="https://rohispolinema.com/android-chrome-192x192.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="https://rohispolinema.com/apple-touch-icon.png">
+        <link rel="manifest" href="https://rohispolinema.com/site.webmanifest">
         
         <!-- Meta tags for better SEO -->
         <meta name="theme-color" content="#ffffff">
         <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="description" content="Kerohanian Islam Politeknik hadir sebagai wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Politeknik Negeri Malang.">
+        <link rel="canonical" href="https://rohispolinema.com">
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://rohispolinema.com">
+        <meta property="og:title" content="RISPOL | Kerohanian Islam Politeknik Negeri Malang">
+        <meta property="og:description" content="Kerohanian Islam Politeknik hadir sebagai wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Politeknik Negeri Malang.">
+        <meta property="og:image" content="{{ asset('android-chrome-512x512.png') }}">
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:url" content="https://rohispolinema.com">
+        <meta name="twitter:title" content="RISPOL | Kerohanian Islam Politeknik Negeri Malang">
+        <meta name="twitter:description" content="Kerohanian Islam Politeknik hadir sebagai wadah pembinaan karakter, ukhuwah islamiyah, dan pengembangan potensi mahasiswa muslim di Politeknik Negeri Malang.">
+        <meta name="twitter:image" content="{{ asset('android-chrome-512x512.png') }}">
 
         <!-- Scripts -->
         @routes
