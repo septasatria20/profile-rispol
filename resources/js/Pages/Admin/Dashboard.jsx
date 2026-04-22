@@ -264,7 +264,7 @@ export default function Dashboard({
 
     // Utils
     const handleDonationStatus = (id, status) => router.post(`/admin/donations/${id}/status`, { status });
-    const handleLogout = () => router.post('/logout');
+    const handleLogout = () => router.post('/admin/logout');
 
     // --- RENDER FUNCTIONS ---
 

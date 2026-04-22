@@ -10,8 +10,9 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        Admin::create([
+        Admin::updateOrCreate([
             'username' => 'admin_rispol',
+        ], [
             'password' => Hash::make('Rispol2024!'),
             'name' => 'Administrator RISPOL',
             'email' => 'admin@rispol.polinema.ac.id',
