@@ -35,13 +35,13 @@ Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store')
 // --- ADMIN ROUTES ---
 Route::prefix('admin')->group(function () {
     // Admin Login Routes
-    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->middleware('no.cache')->name('admin.login');
     Route::post('/login', [AdminLoginController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 });
 
 // Admin Dashboard Routes (Protected)
-Route::prefix('admin')->middleware(['admin'])->group(function () {
+Route::prefix('admin')->middleware(['admin', 'no.cache'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
     // Settings - Menggunakan AdminController

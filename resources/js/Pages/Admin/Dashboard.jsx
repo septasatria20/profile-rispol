@@ -265,7 +265,16 @@ export default function Dashboard({
 
     // Utils
     const handleDonationStatus = (id, status) => router.post(`/admin/donations/${id}/status`, { status });
-    const handleLogout = () => router.post('/admin/logout');
+    const handleLogout = () => {
+        router.post('/admin/logout', {}, {
+            replace: true,
+            preserveState: false,
+            preserveScroll: false,
+            onSuccess: () => {
+                window.location.replace('/admin/login');
+            },
+        });
+    };
 
     const formatCurrency = (amount) => `Rp ${Number(amount || 0).toLocaleString('id-ID')}`;
     const formatDateTime = (value) => {
