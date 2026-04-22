@@ -124,18 +124,23 @@ export default function Login({ captcha = {} }) {
                             )}
                         </div>
 
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-slate-700">
-                                Verifikasi Keamanan: {captcha.firstNumber ?? 0} + {captcha.secondNumber ?? 0} = ?
-                            </label>
-                            <input
-                                type="number"
-                                value={data.captcha_answer}
-                                onChange={e => setData('captcha_answer', e.target.value)}
-                                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
-                                placeholder="Masukkan hasil penjumlahan"
-                                inputMode="numeric"
-                            />
+                        <div className="rounded-2xl border border-dashed border-teal-300 bg-teal-50/50 p-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700">
+                                Verifikasi Bukan Robot
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-3">
+                                <div className="rounded-lg border border-teal-200 bg-white px-3 py-2 font-mono text-lg font-semibold text-slate-800">
+                                    {captcha.firstNumber ?? 0} + {captcha.secondNumber ?? 0} = ?
+                                </div>
+                                <input
+                                    type="number"
+                                    value={data.captcha_answer}
+                                    onChange={e => setData('captcha_answer', e.target.value)}
+                                    className="w-32 rounded-lg border border-stone-300 bg-white px-3 py-2 text-center text-slate-900 placeholder-slate-400 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                                    placeholder="Jawaban"
+                                    inputMode="numeric"
+                                />
+                            </div>
                             {errors.captcha_answer && (
                                 <p className="mt-2 text-sm text-red-600">{errors.captcha_answer}</p>
                             )}
