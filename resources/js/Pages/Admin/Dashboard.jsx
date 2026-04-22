@@ -4,7 +4,8 @@ import {
     LayoutDashboard, Calendar, Image as ImageIcon, MessageSquare, 
     Users, Settings, LogOut, Plus, Trash2, Edit, Search, 
     TrendingUp, DollarSign, Eye, MoreVertical, X, Save, ExternalLink, BarChart3,
-    Newspaper, Youtube, Building2, CheckCircle, XCircle, Clock, AlertCircle, Check
+    Newspaper, Youtube, Building2, CheckCircle, XCircle, Clock, AlertCircle, Check,
+    Mail, HandCoins, ArrowUpRight
 } from 'lucide-react';
 
 // Toast Component
@@ -266,50 +267,173 @@ export default function Dashboard({
     const handleDonationStatus = (id, status) => router.post(`/admin/donations/${id}/status`, { status });
     const handleLogout = () => router.post('/admin/logout');
 
+    const formatCurrency = (amount) => `Rp ${Number(amount || 0).toLocaleString('id-ID')}`;
+    const formatDateTime = (value) => {
+        if (!value) return '-';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        });
+    };
+
+    const statMap = (stats || []).reduce((acc, item) => {
+        acc[item.label] = item.val;
+        return acc;
+    }, {});
+
+    const dashboardCards = [
+        {
+            title: 'Total Donasi',
+            value: statMap['Total Donasi'] || 'Rp 0',
+            helper: 'Akumulasi donasi terverifikasi',
+            icon: DollarSign,
+            iconClass: 'bg-emerald-500/15 text-emerald-700',
+        },
+        {
+            title: 'Donasi Pending',
+            value: statMap['Donasi Pending'] || '0',
+            helper: 'Menunggu verifikasi admin',
+            icon: HandCoins,
+            iconClass: 'bg-amber-500/15 text-amber-700',
+        },
+        {
+            title: 'Total Berita',
+            value: statMap['Total Berita'] || '0',
+            helper: 'Artikel terpublikasi',
+            icon: Newspaper,
+            iconClass: 'bg-sky-500/15 text-sky-700',
+        },
+        {
+            title: 'Proker Aktif',
+            value: statMap['Proker Aktif'] || '0',
+            helper: 'Agenda berjalan saat ini',
+            icon: Calendar,
+            iconClass: 'bg-violet-500/15 text-violet-700',
+        },
+    ];
+
+    const latestDonations = (donations || []).slice(0, 5);
+    const latestContacts = (contacts || []).slice(0, 5);
+    const pendingDonationCount = (donations || []).filter((item) => item.status === 'pending').length;
+    const pendingMessageCount = (contacts || []).filter((item) => item.status === 'pending').length;
+
     // --- RENDER FUNCTIONS ---
 
     const renderDashboard = () => (
         <div className="space-y-8 animate-fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {(stats || []).map((stat, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all hover:-translate-y-1">
-                        <div className={`w-14 h-14 ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-100`}>
-                            {idx === 0 ? <DollarSign size={28}/> : idx === 1 ? <Eye size={28}/> : idx === 2 ? <Newspaper size={28}/> : <Calendar size={28}/>}
-                        </div>
-                        <div><h4 className="text-3xl font-bold text-slate-800">{stat.val}</h4><p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">{stat.label}</p></div>
+            <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-lg">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Ringkasan Operasional</p>
+                        <h3 className="mt-2 text-2xl font-semibold">Dashboard Admin RISPOL</h3>
+                        <p className="mt-2 text-sm text-slate-300">Pantau donasi, pesan masuk, dan konten terbaru dalam satu halaman.</p>
                     </div>
-                ))}
+                    <button
+                        onClick={() => setActiveTab('donasi')}
+                        className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                    >
+                        Kelola Donasi
+                        <ArrowUpRight size={16} />
+                    </button>
+                </div>
             </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                    <div className="flex justify-between items-center mb-8">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl"><BarChart3 size={24} /></div>
-                            <div><h3 className="font-bold text-lg text-slate-800">Statistik Donasi</h3><p className="text-xs text-slate-500">Overview donasi masuk tahun ini</p></div>
-                        </div>
-                    </div>
-                    <div className="h-64 flex items-end justify-between gap-4 px-2">
-                        {[45, 60, 35, 80, 55, 90, 70, 65, 50, 75, 85, 95].map((val, i) => (
-                            <div key={i} className="w-full flex flex-col items-center gap-3 group cursor-pointer">
-                                <div className="w-full bg-slate-100 rounded-t-xl relative h-full flex items-end overflow-hidden">
-                                    <div style={{height: `${val}%`}} className="w-full bg-blue-500 group-hover:bg-blue-600 transition-all duration-500 rounded-t-xl relative"></div>
+
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                {dashboardCards.map((card) => {
+                    const Icon = card.icon;
+                    return (
+                        <div key={card.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{card.title}</p>
+                                    <p className="mt-2 text-2xl font-bold text-slate-900">{card.value}</p>
+                                    <p className="mt-1 text-xs text-slate-500">{card.helper}</p>
+                                </div>
+                                <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${card.iconClass}`}>
+                                    <Icon size={20} />
                                 </div>
                             </div>
-                        ))}
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
+                    <div className="mb-5 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900">Riwayat Donasi Terbaru</h3>
+                            <p className="text-sm text-slate-500">5 transaksi terbaru yang masuk dari halaman donasi.</p>
+                        </div>
+                        <button onClick={() => setActiveTab('donasi')} className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Lihat semua</button>
+                    </div>
+
+                    <div className="space-y-3">
+                        {latestDonations.length > 0 ? latestDonations.map((item) => (
+                            <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-slate-900">{item.name}</p>
+                                    <p className="truncate text-xs text-slate-500">{item.campaign || 'Donasi Umum'} • {formatDateTime(item.created_at)}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                                        item.status === 'verified' ? 'bg-emerald-100 text-emerald-700' : item.status === 'rejected' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                                    }`}>
+                                        {item.status === 'verified' ? 'Terverifikasi' : item.status === 'rejected' ? 'Ditolak' : 'Pending'}
+                                    </span>
+                                    <span className="text-sm font-bold text-slate-900">{formatCurrency(item.amount)}</span>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500">
+                                Belum ada donasi terbaru.
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 className="font-bold text-lg text-slate-800 mb-6">Aktivitas Terbaru</h3>
-                    <div className="space-y-6">
-                        {donations.slice(0, 4).map((d) => (
-                            <div key={d.id} className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold text-sm shrink-0">{d.name.charAt(0)}</div>
-                                <div className="flex-1 min-w-0"><h4 className="font-bold text-slate-800 text-sm truncate">{d.name}</h4><p className="text-xs text-slate-500 truncate">Donasi</p></div>
-                                <span className="font-bold text-emerald-600 text-sm">+{parseInt(d.amount).toLocaleString()}</span>
-                            </div>
-                        ))}
+                <div className="space-y-4">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-base font-bold text-slate-900">Pesan Masuk Terbaru</h3>
+                            <button onClick={() => setActiveTab('kontak')} className="text-xs font-semibold text-sky-700 hover:text-sky-800">Buka inbox</button>
+                        </div>
+                        <div className="space-y-3">
+                            {latestContacts.length > 0 ? latestContacts.map((item) => (
+                                <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <p className="truncate text-sm font-semibold text-slate-900">{item.name}</p>
+                                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                            {item.status === 'replied' ? 'Dibalas' : 'Pending'}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.message}</p>
+                                </div>
+                            )) : (
+                                <p className="rounded-xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-500">Belum ada pesan masuk.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <h3 className="text-base font-bold text-slate-900">Perlu Ditindaklanjuti</h3>
+                        <div className="mt-4 space-y-3">
+                            <button onClick={() => setActiveTab('donasi')} className="flex w-full items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left">
+                                <span className="flex items-center gap-2 text-sm font-medium text-amber-900"><Clock size={16} /> Donasi pending</span>
+                                <span className="text-sm font-bold text-amber-900">{pendingDonationCount}</span>
+                            </button>
+                            <button onClick={() => setActiveTab('kontak')} className="flex w-full items-center justify-between rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-left">
+                                <span className="flex items-center gap-2 text-sm font-medium text-sky-900"><Mail size={16} /> Pesan belum dibalas</span>
+                                <span className="text-sm font-bold text-sky-900">{pendingMessageCount}</span>
+                            </button>
+                            <button onClick={() => setActiveTab('berita')} className="flex w-full items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left">
+                                <span className="flex items-center gap-2 text-sm font-medium text-emerald-900"><Newspaper size={16} /> Kelola konten berita</span>
+                                <ArrowUpRight size={15} className="text-emerald-900" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -946,7 +1070,7 @@ export default function Dashboard({
     return (
         <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
             <Head title="Admin Dashboard" />
-            {showToast && <Toast message="Operasi berhasil!" onClose={() => setShowToast(false)} />}
+            {showToast && <Toast message={flash?.success || 'Operasi berhasil!'} onClose={() => setShowToast(false)} />}
             
             <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
                 {/* FIX: Ganti icon dengan logo */}
