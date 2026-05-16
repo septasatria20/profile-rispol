@@ -12,7 +12,18 @@ appName = appName.replace(/laravel/ig, '').replace(/[\-|–—|\/\\]+/g, ' ').tr
 if (!appName) appName = 'RISPOL';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => {
+        if (!title) return appName;
+
+        const normalizedTitle = title.toLowerCase();
+        const normalizedAppName = appName.toLowerCase();
+
+        if (normalizedTitle.includes(normalizedAppName)) {
+            return title;
+        }
+
+        return `${title} - ${appName}`;
+    },
     resolve: (name) => resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
