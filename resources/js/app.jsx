@@ -18,6 +18,10 @@ createInertiaApp({
         const normalizedTitle = title.toLowerCase();
         const normalizedAppName = appName.toLowerCase();
 
+        if (normalizedTitle.includes('kerohanian islam politeknik negeri malang')) {
+            return title;
+        }
+
         if (normalizedTitle.includes(normalizedAppName)) {
             return title;
         }
