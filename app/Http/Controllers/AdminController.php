@@ -104,7 +104,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
             'published_at' => 'required|date',
         ]);
 
@@ -127,7 +127,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
             'published_at' => 'required|date',
         ]);
 
@@ -222,19 +222,19 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'youtube_link' => 'nullable|url',
-            'hero_image' => 'nullable|image|max:2048',
-            'qris_image' => 'nullable|image|max:2048',
-            'mentoring_image' => 'nullable|image|max:2048',
-            'donation_poster_1' => 'nullable|image|max:3072',
-            'donation_poster_2' => 'nullable|image|max:3072',
-            'donation_poster_3' => 'nullable|image|max:3072',
-            'donation_poster_4' => 'nullable|image|max:3072',
-            'donation_poster_5' => 'nullable|image|max:3072',
-            'slider_1' => 'nullable|image|max:2048',
+            'hero_image' => 'nullable|image|max:1024',
+            'qris_image' => 'nullable|image|max:1024',
+            'mentoring_image' => 'nullable|image|max:1024',
+            'donation_poster_1' => 'nullable|image|max:1024',
+            'donation_poster_2' => 'nullable|image|max:1024',
+            'donation_poster_3' => 'nullable|image|max:1024',
+            'donation_poster_4' => 'nullable|image|max:1024',
+            'donation_poster_5' => 'nullable|image|max:1024',
+            'slider_1' => 'nullable|image|max:1024',
             'slider_1_title' => 'nullable|string|max:255',
-            'slider_2' => 'nullable|image|max:2048',
+            'slider_2' => 'nullable|image|max:1024',
             'slider_2_title' => 'nullable|string|max:255',
-            'slider_3' => 'nullable|image|max:2048',
+            'slider_3' => 'nullable|image|max:1024',
             'slider_3_title' => 'nullable|string|max:255',
         ]);
 
@@ -343,7 +343,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
             'order' => 'nullable|integer',
         ]);
 
@@ -364,7 +364,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
         ]);
@@ -415,7 +415,7 @@ class AdminController extends Controller
             'role' => 'required|string|max:255',
             'nim' => 'nullable|string|max:255',
             'prodi' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
             'order' => 'nullable|integer',
         ]);
 
@@ -447,7 +447,7 @@ class AdminController extends Controller
             'role' => 'required|string|max:255',
             'nim' => 'nullable|string|max:255',
             'prodi' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
         ]);
@@ -547,7 +547,7 @@ class AdminController extends Controller
             'description' => 'nullable|string',
             'drive_link' => 'required|url',
             'photo_count' => 'nullable|integer|min:0',
-            'thumbnail' => 'nullable|image|max:2048',
+            'thumbnail' => 'nullable|image|max:1024',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -570,7 +570,7 @@ class AdminController extends Controller
             'description' => 'nullable|string',
             'drive_link' => 'required|url',
             'photo_count' => 'nullable|integer|min:0',
-            'thumbnail' => 'nullable|image|max:2048',
+            'thumbnail' => 'nullable|image|max:1024',
         ]);
 
         if ($request->hasFile('thumbnail')) {

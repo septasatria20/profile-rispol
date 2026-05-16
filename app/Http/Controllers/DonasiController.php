@@ -99,7 +99,7 @@ class DonasiController extends Controller
                 'amount'        => 'required|integer|min:10000',
                 'campaign'      => 'required|string|max:255',
                 'message'       => 'nullable|string',
-                'payment_proof' => 'required|image|max:2048',
+                'payment_proof' => 'required|image|max:1024',
             ]);
 
             if ($request->hasFile('payment_proof')) {

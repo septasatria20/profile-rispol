@@ -16,7 +16,7 @@ class GaleriController extends Controller
             'description' => 'nullable|string',
             'drive_link'  => 'required|url',
             'photo_count' => 'nullable|integer',
-            'thumbnail'   => 'nullable|image'
+            'thumbnail'   => 'nullable|image|max:1024'
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -36,7 +36,7 @@ class GaleriController extends Controller
             'description' => 'nullable|string',
             'drive_link'  => 'required|url',
             'photo_count' => 'nullable|integer',
-            'thumbnail'   => 'nullable|image'
+            'thumbnail'   => 'nullable|image|max:1024'
         ]);
 
         if ($request->hasFile('thumbnail')) {

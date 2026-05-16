@@ -56,7 +56,7 @@ class ProkerController extends Controller
             'date' => 'required|date',
             'status' => 'required|in:Aktif,Selesai',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
         ]);
 
         if ($request->hasFile('image')) {
@@ -79,7 +79,7 @@ class ProkerController extends Controller
             'date' => 'required|date',
             'status' => 'required|in:Aktif,Selesai',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:1024',
         ]);
 
         if ($request->hasFile('image')) {

@@ -80,6 +80,27 @@ class LandingController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Normalisasi: bersihkan nilai yang tidak valid atau kata-kata seperti "approval"
+        if (!empty($validated['email'])) {
+            $email = trim($validated['email']);
+            $lower = strtolower($email);
+            if (strpos($lower, 'approval') !== false || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $validated['email'] = null;
+            } else {
+                $validated['email'] = $email;
+            }
+        }
+
+        if (!empty($validated['phone'])) {
+            // Hanya simpan digit; jika hasilnya terlalu pendek, drop
+            $digits = preg_replace('/\D+/', '', $validated['phone']);
+            if (strlen($digits) < 6) {
+                $validated['phone'] = null;
+            } else {
+                $validated['phone'] = $digits;
+            }
+        }
+
         Contact::create($validated);
 
         return redirect()->back()->with('success', 'Pesan Anda berhasil terkirim! Kami akan segera menghubungi Anda.');
@@ -105,7 +126,7 @@ class LandingController extends Controller
             'amount' => 'required|numeric|min:10000',
             'campaign' => 'required|string|max:255',
             'message' => 'nullable|string',
-            'payment_proof' => 'required|image|max:2048',
+            'payment_proof' => 'required|image|max:1024',
         ]);
 
         if ($request->hasFile('payment_proof')) {

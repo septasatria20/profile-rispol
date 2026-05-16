@@ -488,7 +488,15 @@ export default function Donasi({
                                                 </label>
                                                 <input
                                                     type="file"
-                                                    onChange={(e) => setData('payment_proof', e.target.files[0])}
+                                                    onChange={(e) => {
+                                                        const f = e.target.files[0];
+                                                        if (f && f.size > 1024 * 1024) {
+                                                            alert('File terlalu besar. Maks 1 MB.');
+                                                            e.target.value = null;
+                                                            return;
+                                                        }
+                                                        setData('payment_proof', f);
+                                                    }}
                                                     className="w-full rounded-lg border border-slate-200 px-3 md:px-4 py-2.5 md:py-3 text-sm outline-none focus:border-blue-500"
                                                     accept="image/*"
                                                     required
@@ -497,7 +505,7 @@ export default function Donasi({
                                                     <p className="mt-1 text-xs text-red-500">{errors.payment_proof}</p>
                                                 )}
                                                 <p className="mt-1 text-xs text-slate-400">
-                                                    Format: JPG/PNG, maksimal 2MB.
+                                                    Format: JPG/PNG, maksimal 1MB.
                                                 </p>
                                             </div>
 

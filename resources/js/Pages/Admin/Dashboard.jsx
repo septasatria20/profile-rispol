@@ -73,6 +73,16 @@ export default function Dashboard({
     const orgForm = useForm({ visi: visiMisi.visi || '', misi: visiMisi.misi || '', sejarah: visiMisi.sejarah || '' });
     const galeriForm = useForm({ id: '', year: new Date().getFullYear(), title: '', description: '', drive_link: '', photo_count: 0, thumbnail: null });
 
+    // Helper to set file with size limit (KB)
+    const setFileWithLimit = (form, key, file, maxKB = 1024) => {
+        if (!file) return;
+        if (file.size > maxKB * 1024) {
+            alert(`File terlalu besar. Maks ${maxKB} KB.`);
+            return;
+        }
+        form.setData(key, file);
+    };
+
     // --- HANDLERS (LOGIC) ---
 
     // 1. Proker Logic
@@ -414,7 +424,14 @@ export default function Dashboard({
                             {latestContacts.length > 0 ? latestContacts.map((item) => (
                                 <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
                                     <div className="flex items-start justify-between gap-2">
-                                        <p className="truncate text-sm font-semibold text-slate-900">{item.name}</p>
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-semibold text-slate-900">{item.name}</p>
+                                            <div className="text-xs text-slate-400">
+                                                {item.email ? <div>{item.email}</div> : null}
+                                                {item.phone ? <div>{item.phone}</div> : null}
+                                                {!item.email && !item.phone ? <div>-</div> : null}
+                                            </div>
+                                        </div>
                                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                                             {item.status === 'replied' ? 'Dibalas' : 'Pending'}
                                         </span>
@@ -569,7 +586,7 @@ export default function Dashboard({
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
                 <h3 className="font-bold text-lg text-slate-800 mb-6">Pengaturan QRIS Donasi</h3>
                 <form onSubmit={handleSubmitSettings} className="flex items-end gap-4">
-                    <div className="flex-1"><input type="file" onChange={e => settingsForm.setData('qris_image', e.target.files[0])} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm" /></div>
+                    <div className="flex-1"><input type="file" onChange={e => setFileWithLimit(settingsForm, 'qris_image', e.target.files[0])} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm" /></div>
                     <button type="submit" className="bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-emerald-700">Update QRIS</button>
                 </form>
                 {settings.qris_image && <div className="w-32 h-32 mt-4 border rounded p-2"><img src={`/storage/${settings.qris_image}`} className="w-full h-full object-contain"/></div>}
@@ -587,7 +604,7 @@ export default function Dashboard({
                                 <label className="block text-sm font-bold mb-2">Poster {num}</label>
                                 <input 
                                     type="file" 
-                                    onChange={e=>settingsForm.setData(`donation_poster_${num}`, e.target.files[0])} 
+                                    onChange={e=>setFileWithLimit(settingsForm, `donation_poster_${num}`, e.target.files[0])} 
                                     className="w-full border rounded-lg p-2 text-sm"
                                     accept="image/*"
                                 />
@@ -744,7 +761,14 @@ export default function Dashboard({
                 <tbody>
                     {contacts.map((item) => (
                         <tr key={item.id} className="border-b hover:bg-slate-50">
-                            <td className="p-4 font-medium">{item.name}<div className="text-xs text-slate-400">{item.email}</div></td>
+                            <td className="p-4 font-medium">
+                                {item.name}
+                                <div className="text-xs text-slate-400">
+                                    {item.email ? <div>{item.email}</div> : null}
+                                    {item.phone ? <div>{item.phone}</div> : null}
+                                    {!item.email && !item.phone ? <div>-</div> : null}
+                                </div>
+                            </td>
                             <td className="p-4 max-w-xs truncate">{item.message}</td>
                             <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>{item.status === 'replied' ? 'Dibalas' : 'Pending'}</span></td>
                             <td className="p-4 text-right">
@@ -848,12 +872,12 @@ export default function Dashboard({
                     
                     <div>
                         <label className="block text-sm font-bold mb-2">Hero Image</label>
-                        <input 
-                            type="file" 
-                            onChange={e=>settingsForm.setData('hero_image', e.target.files[0])} 
-                            className="w-full border rounded-lg p-2"
-                            accept="image/*"
-                        />
+                            <input 
+                                type="file" 
+                                onChange={e=>setFileWithLimit(settingsForm, 'hero_image', e.target.files[0])} 
+                                className="w-full border rounded-lg p-2"
+                                accept="image/*"
+                            />
                         {settings.hero_image && (
                             <div className="mt-2">
                                 <img src={`/storage/${settings.hero_image}`} className="w-40 h-24 object-cover rounded border" alt="Hero" />
@@ -866,7 +890,7 @@ export default function Dashboard({
                         <p className="text-xs text-slate-500 mb-2">Gambar untuk section Website Mentoring Polinema di homepage</p>
                         <input 
                             type="file" 
-                            onChange={e=>settingsForm.setData('mentoring_image', e.target.files[0])} 
+                            onChange={e=>setFileWithLimit(settingsForm, 'mentoring_image', e.target.files[0])} 
                             className="w-full border rounded-lg p-2"
                             accept="image/*"
                         />
@@ -895,9 +919,9 @@ export default function Dashboard({
                         {/* Slider 1 */}
                         <div>
                             <label className="block text-sm font-bold mb-2">Slider 1</label>
-                            <input 
+                                <input 
                                 type="file" 
-                                onChange={e=>settingsForm.setData('slider_1', e.target.files[0])} 
+                                onChange={e=>setFileWithLimit(settingsForm, 'slider_1', e.target.files[0])} 
                                 className="w-full border rounded-lg p-2 text-sm mb-2"
                                 accept="image/*"
                             />
@@ -925,7 +949,7 @@ export default function Dashboard({
                             <label className="block text-sm font-bold mb-2">Slider 2</label>
                             <input 
                                 type="file" 
-                                onChange={e=>settingsForm.setData('slider_2', e.target.files[0])} 
+                                onChange={e=>setFileWithLimit(settingsForm, 'slider_2', e.target.files[0])} 
                                 className="w-full border rounded-lg p-2 text-sm mb-2"
                                 accept="image/*"
                             />
@@ -953,7 +977,7 @@ export default function Dashboard({
                             <label className="block text-sm font-bold mb-2">Slider 3</label>
                             <input 
                                 type="file" 
-                                onChange={e=>settingsForm.setData('slider_3', e.target.files[0])} 
+                                onChange={e=>setFileWithLimit(settingsForm, 'slider_3', e.target.files[0])} 
                                 className="w-full border rounded-lg p-2 text-sm mb-2"
                                 accept="image/*"
                             />
@@ -1151,7 +1175,7 @@ export default function Dashboard({
                                     <label className="block text-sm font-bold mb-2">Upload Gambar</label>
                                     <input 
                                         type="file" 
-                                        onChange={e=>prokerForm.setData('image',e.target.files[0])} 
+                                        onChange={e=>setFileWithLimit(prokerForm,'image',e.target.files[0])} 
                                         className="w-full border p-2 rounded"
                                         accept="image/*"
                                     />
@@ -1166,7 +1190,7 @@ export default function Dashboard({
                             </form>
                         )}
                         
-                        {(modalType.includes('berita')) && <form onSubmit={handleSubmitBerita} className="p-6 space-y-4"><input type="text" placeholder="Judul" className="w-full border p-2 rounded" value={beritaForm.data.title} onChange={e=>beritaForm.setData('title',e.target.value)} required/><textarea placeholder="Konten" className="w-full border p-2 rounded" rows="4" value={beritaForm.data.content} onChange={e=>beritaForm.setData('content',e.target.value)} required></textarea><input type="date" className="w-full border p-2 rounded" value={beritaForm.data.published_at} onChange={e=>beritaForm.setData('published_at',e.target.value)} required/><input type="file" onChange={e=>beritaForm.setData('image',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
+                        {(modalType.includes('berita')) && <form onSubmit={handleSubmitBerita} className="p-6 space-y-4"><input type="text" placeholder="Judul" className="w-full border p-2 rounded" value={beritaForm.data.title} onChange={e=>beritaForm.setData('title',e.target.value)} required/><textarea placeholder="Konten" className="w-full border p-2 rounded" rows="4" value={beritaForm.data.content} onChange={e=>beritaForm.setData('content',e.target.value)} required></textarea><input type="date" className="w-full border p-2 rounded" value={beritaForm.data.published_at} onChange={e=>beritaForm.setData('published_at',e.target.value)} required/><input type="file" onChange={e=>setFileWithLimit(beritaForm,'image',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
                         
                         {(modalType.includes('bank')) && <form onSubmit={handleSubmitBank} className="p-6 space-y-4"><input type="text" placeholder="Bank" className="w-full border p-2 rounded" value={bankForm.data.bank_name} onChange={e=>bankForm.setData('bank_name',e.target.value)} required/><input type="text" placeholder="No Rek" className="w-full border p-2 rounded" value={bankForm.data.account_number} onChange={e=>bankForm.setData('account_number',e.target.value)} required/><input type="text" placeholder="Atas Nama" className="w-full border p-2 rounded" value={bankForm.data.account_holder} onChange={e=>bankForm.setData('account_holder',e.target.value)} required/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
                         
@@ -1192,7 +1216,7 @@ export default function Dashboard({
                                     <label className="block text-sm font-bold mb-2">Upload Logo/Gambar Bidang</label>
                                     <input 
                                         type="file" 
-                                        onChange={e=>bidangForm.setData('image',e.target.files[0])}
+                                        onChange={e=>setFileWithLimit(bidangForm,'image',e.target.files[0])}
                                         className="w-full border p-2 rounded"
                                         accept="image/*"
                                     />
@@ -1210,7 +1234,7 @@ export default function Dashboard({
                             </form>
                         )}
                         
-                        {(modalType.includes('pengurus')) && <form onSubmit={handleSubmitPengurus} className="p-6 space-y-4"><input type="text" placeholder="Nama" className="w-full border p-2 rounded" value={pengurusForm.data.name} onChange={e=>pengurusForm.setData('name',e.target.value)} required/><input type="text" placeholder="Jabatan" className="w-full border p-2 rounded" value={pengurusForm.data.position} onChange={e=>pengurusForm.setData('position',e.target.value)} required/><input type="file" onChange={e=>pengurusForm.setData('photo',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
+                        {(modalType.includes('pengurus')) && <form onSubmit={handleSubmitPengurus} className="p-6 space-y-4"><input type="text" placeholder="Nama" className="w-full border p-2 rounded" value={pengurusForm.data.name} onChange={e=>pengurusForm.setData('name',e.target.value)} required/><input type="text" placeholder="Jabatan" className="w-full border p-2 rounded" value={pengurusForm.data.position} onChange={e=>pengurusForm.setData('position',e.target.value)} required/><input type="file" onChange={e=>setFileWithLimit(pengurusForm,'photo',e.target.files[0])}/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
 
                        {(modalType.includes('galeri')) && <form onSubmit={handleSubmitGaleri} className="p-6 space-y-4"><input type="number" placeholder="Tahun" className="w-full border p-2 rounded" value={galeriForm.data.year} onChange={e=>galeriForm.setData('year',e.target.value)} required/><input type="text" placeholder="Judul Album" className="w-full border p-2 rounded" value={galeriForm.data.title} onChange={e=>galeriForm.setData('title',e.target.value)} required/><input type="text" placeholder="Link Drive" className="w-full border p-2 rounded" value={galeriForm.data.drive_link} onChange={e=>galeriForm.setData('drive_link',e.target.value)} required/><button className="w-full bg-blue-600 text-white py-2 rounded font-bold">Simpan</button></form>}
                     </div>
