@@ -5,7 +5,11 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 
-const appName = import.meta.env.VITE_APP_NAME || import.meta.env.APP_NAME || 'RISPOL';
+const rawAppName = import.meta.env.VITE_APP_NAME || import.meta.env.APP_NAME || 'RISPOL';
+let appName = rawAppName;
+// Remove any accidental "Laravel" suffix or occurrences and collapse separators
+appName = appName.replace(/laravel/ig, '').replace(/[\-|–—|\/\\]+/g, ' ').trim();
+if (!appName) appName = 'RISPOL';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

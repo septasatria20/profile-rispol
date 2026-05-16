@@ -315,7 +315,7 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                                     <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
                                                     <span className="text-sm font-bold">Program Wajib</span>
                                                 </div>
-                                                <h4 className="font-serif text-2xl font-bold">Portal Mentoring</h4>
+                                                <h4 className="font-sans text-2xl font-bold">Portal Mentoring</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -327,7 +327,7 @@ export default function Home({ bidangs, prokers, news, heroImage, sliderImages =
                                         <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
                                             Mentoring Keagamaan
                                         </span>
-                                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                                        <h2 className="font-sans text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                                             Website Mentoring Polinema
                                         </h2>
                                         <p className="text-lg text-slate-600 leading-relaxed mb-6">
